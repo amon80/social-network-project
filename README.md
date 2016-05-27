@@ -6,5 +6,5 @@ In order to use it, you must install nltk for python
 
 then from a python interpreter run : 
 
-	import nltk
-	nltk.download()
+	>>import nltk
+	>>nltk.download()
