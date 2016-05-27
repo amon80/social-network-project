@@ -43,7 +43,7 @@ def document_parser(document):
                 if tag in admitted_tags:
                     word = tagged_token[0]
                     word = wordnet_lemmatizer.lemmatize(word)
-                    if word not in stopwords and len(word) > 1:
+                    if word not in stopwords and len(word) > 2:
                         if word not in document_words.keys():
                             document_words[word] = 0
                         document_words[word] += 1
