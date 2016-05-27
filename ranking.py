@@ -50,7 +50,7 @@ def pageRank(graph, s, step, confidence):
 #	PageRank near the top of the list
 # 2 Pick a domain whose membership is controlled, on the assumption that it is hard
 #	for a spammer to get their pages into these domains (e.g. .edu, .gov, .mil)
-def trustRank(graph):
+def trustRank(graph, ):
 	return
 
 
@@ -68,7 +68,6 @@ def spamMass(graph):
 	finalRank = dict()
 	for node in graph.keys():
 		finalRank[node] = ( prRank[node] - trRank[node] ) / trRank[node] 
-
 
 	return finalRank
 
