@@ -63,6 +63,7 @@ def create_word_advs(queryfile):
     with open(queryfile) as infile:
         
         for line in infile:
+            line = line.rstrip()
             name_list = line.split(' ',1)
             name=name_list[0]
             queries=name_list[1].split(',')
@@ -74,7 +75,7 @@ def create_word_advs(queryfile):
                 for word in query_words:
                 
                     if word not in word_advs.keys():
-                        word_advs[word]=set() #We use a set for avoid repetitions
+                        word_advs[word]=set() #We use a set to avoid repetitions
                     
                     word_advs[word].add(name)
                     #It would be possible to save not only the name but also the occurrence of the word in the document / advertiser's request.
@@ -102,3 +103,6 @@ def best_match(query, threshold):
                 best_docs.add(doc)
                 
     return best_docs    
+
+if __name__ == "__main__":
+    print(create_word_advs('queryfile.txt'))
