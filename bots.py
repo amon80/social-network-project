@@ -1,5 +1,16 @@
 from abc import ABCMeta, abstractmethod
 
+# Bots:
+#   INPUT
+#       - Name (?)
+#       - Personal Evaluation
+#       - Bid History
+#         |- Bids.      KEY: Advertisers    VALUE: Bids
+#         |- Slots      KEY: Advertisers    VALUE: Slots
+#         '- Pays       KEY: Advertisers    VALUE: Prices
+#       - Slots Clickthrough Rates
+#   OUTPUT
+#       - Bid
 
 class Bot(metaclass=ABCMeta):
     @abstractmethod
