@@ -16,51 +16,16 @@
 #    nome_adv2 prova,esempio,caso semplice,evidenza
 #    nome_adv3 esempio test,esempio esame,esempio prova,esame prova
 
-#The second phase must be executed for any issued query.
-#Different strategies are available for this phase:
-#either we look for an exact match of the query in the document / advertisers' requests
-#or we look for document / advertiser' requests that are "good" match, but not necessarily exact.
-
-###EXACT MATCH###
-
-#We create an inverted index with an entry for every query search on which advertisers requested to appear
-def create_query_advs(queryfile):
-    query_advs = dict()
-    
-    with open(queryfile) as infile:
-        
-        for line in infile:
-            line = line.rstrip()
-            name_list = line.split(' ',1) #It splits the line in two elements: the first contains the name of the advertiser, the second a list of query searches
-            name=name_list[0]
-            queries=name_list[1].split(',') #It splits the list query searches
-            
-            for query in queries:
-                
-                query_key = ' '.join(sorted(query.split())) #We reoder every query search so that "prova esame" is the same as "esame prova"
-                
-                if query_key not in query_advs.keys():
-                    query_advs[query_key]=[]
-                    
-                query_advs[query_key].append(name)
-
-    return query_advs
-
-
-#To return an exact match we have to simply return the list that corresponds to the given query in the inverted index    
-def exact_match(query):
-    
-    query_key = ' '.join(sorted(query.split())) #We reorder the query in the lexicographic order
-    
-    return query_advs[query_key]
-
 ###BEST MATCH###
 
+import sys
+
+#Creation of inverted index
 #We create an inverted index with an entry for every word of a document or for any word on which advertisers requested to appear
-def create_word_advs(queryfile):
+def create_word_advs(databasefile):
     word_advs = dict()
 
-    with open(queryfile) as infile:
+    with open(databasefile) as infile:
         
         for line in infile:
             line = line.rstrip()
@@ -75,29 +40,28 @@ def create_word_advs(queryfile):
                 for word in query_words:
                 
                     if word not in word_advs.keys():
-                        word_advs[word]=set() #We use a set to avoid repetitions
+                        word_advs[word]=dict() 
+                    if name not in word_advs[word].keys():
+                        word_advs[word][name] = 0 
                     
-                    word_advs[word].add(name)
-                    #It would be possible to save not only the name but also the occurrence of the word in the document / advertiser's request.
-                    #In this case, we need to associate each name with an accumulator that counts the number of occurrence of the words.
-
+                    word_advs[word][name] += 1
     return word_advs
     
-def best_match(query, threshold):
+def best_match(query, threshold, databasefile='queryfile.txt'):
     adv_weights = dict()
     best_docs = set()
     
     query_words = query.split()
+    word_advs = create_word_advs(databasefile)
     
     #For every word we look at each document in the list and we increment the document's weight
     for word in query_words:
-        for doc in word_advs[word]:
+        for doc in word_advs[word].keys():
             if doc not in adv_weights.keys():
-                adv_weights[doc] = 1
+                adv_weights[doc] = word_advs[word][doc]
             else:
-                adv_weights[doc] += 1
-            #If we would like to count the occurrences, then we must increment the weights not by 1, but by the number of occurrence of that word in the document
-                
+                adv_weights[doc] += word_advs[word][doc]
+
             #We use a threshold to choose which document must be returned
             if adv_weights[doc] >= threshold:
                 best_docs.add(doc)
@@ -105,4 +69,4 @@ def best_match(query, threshold):
     return best_docs    
 
 if __name__ == "__main__":
-    print(create_word_advs('queryfile.txt'))
+    print(best_match(sys.argv[1], 0))
