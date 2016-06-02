@@ -74,6 +74,15 @@ def best_match(query, threshold, inverted_index):
                 
     return best_docs    
 
+#Computes the frequency of word in document given the search index
+def compute_frequency(index, document, word):
+    num_total_words_in_doc = 0
+    frequency = index[document][word]
+    for word_doc in index[document].keys():
+        num_total_words_in_doc += index[document][word_doc]
+    frequency /= num_total_words_in_doc
+    return frequency
+
 #Second variant, using both index and inverted_index
 #Given a query, each document score is proportional to the frequency of each query term in it
 def best_match2(query, inverted_index, index):
@@ -85,12 +94,7 @@ def best_match2(query, inverted_index, index):
     for word in query_words:
         for doc in inverted_index[word].keys():
             #Computing word frequence in doc
-            num_total_words_in_doc = 0
-            frequency = index[doc][word]
-            for word_doc in index[doc].keys():
-                num_total_words_in_doc += index[doc][word_doc]
-            frequency /= num_total_words_in_doc
-
+            frequency = compute_frequency(index, doc, word)
             if doc not in adv_weights.keys():
                 adv_weights[doc] = frequency
             else:
@@ -102,11 +106,30 @@ def best_match2(query, inverted_index, index):
     else:
         return best_docs
 
+#Sorts inverted index from the document with highest frequency to lowest
+def sort_inverted_index(inverted_index, index):
+    sorted_inverted_index = dict()
+    for query_term in inverted_index.keys():
+        frequencies = list()
+        for doc in inverted_index[query_term]:
+            frequencies.append((doc, compute_frequency(index, doc, query_term)))
+        sorted_inverted_index[query_term] = sorted(frequencies, key= lambda x:x[1], reverse=True)
+    return sorted_inverted_index
+
 #Third variant, it must be compared with best_match2
-#In this case, inverted_index is sorted: for each word there is a list of document, ordered from the one with largest frequency
-def best_match3(query, inverted_index, index):
+#sorted_inverted_index is a dict. Key: words. Value: list of couples. Couples: First term:document. Second term:Frequency
+def best_match3(query, sorted_inverted_index):
+
+    query_words = query.split()
+
+    impact = dict()
+    for word in query_words:
+        #The impact of a word is its frequency in the the document with the word's highest frequency
+        impact[word] = sorted_inverted_index[word][0][1]
+    sorted(impact, key=impact.keys(), reverse=True)
+
     return None #Fuck you bogs
 
 if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
-    print(best_match2("prova esame", inverted_index, index))
+    print(sort_inverted_index(inverted_index, index))
