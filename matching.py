@@ -19,6 +19,7 @@
 ###BEST MATCH###
 
 import sys
+from collections import OrderedDict
 
 #Creation of inverted index
 #We create an inverted index with an entry for every word of a document or for any word on which advertisers requested to appear
@@ -87,7 +88,7 @@ def compute_frequency(index, document, word):
 #Given a query, each document score is proportional to the frequency of each query term in it
 def best_match2(query, inverted_index, index):
 
-    adv_weights = dict()
+    scores = dict()
     query_words = query.split()
 
     #For every word we look at each document in the list and we increment the document's weight
@@ -96,11 +97,11 @@ def best_match2(query, inverted_index, index):
             #Computing word frequence in doc
             frequency = compute_frequency(index, doc, word)
             if doc not in adv_weights.keys():
-                adv_weights[doc] = frequency
+                scores[doc] = frequency
             else:
-                adv_weights[doc] += frequency
+                scores[doc] += frequency
 
-    best_docs = sorted(adv_weights, key=adv_weights.get, reverse=True)             
+    best_docs = sorted(scores, key=scores.get, reverse=True)             
     if len(best_docs) > 20:
         return best_docs[0:19]
     else:
@@ -120,16 +121,52 @@ def sort_inverted_index(inverted_index, index):
 #sorted_inverted_index is a dict. Key: words. Value: list of couples. Couples: First term:document. Second term:Frequency
 def best_match3(query, sorted_inverted_index):
 
+    impacts = dict()            # key: doc_name | value: impact
+    scores  = []                # key: doc_name | value: score (#occurence of query term / # words)
+
     query_words = query.split()
 
-    impact = dict()
+    
     for word in query_words:
-        #The impact of a word is its frequency in the the document with the word's highest frequency
-        impact[word] = sorted_inverted_index[word][0][1]
-    sorted(impact, key=impact.keys(), reverse=True)
+        #2  For every query term define its possible impact on the score as the frequency of the most frequent document in its index
+        impacts[word] = sorted_inverted_index[word][0][1]
 
+    #3  Sort the query terms in decreasing order of impact
+    query_term_ordered_by_impact = sorted(impacts, key=impacts.get, reverse=True)
+
+    #4 consider the first 20 documents in the index of the first query term
+    current_query_term = 0
+    while len(scores) < 20:
+        current_doc = 0
+        while len(scores) < 20 and current_doc < len(sorted_inverted_index[query_term_ordered_by_impact[current_query_term]]):
+            scores.append("diocane")
+            
+            #if sorted_inverted_index[query_term_ordered_by_impact[current_query_term]][current_doc]
+             #   score_list.append()
+        print("dioporco")
+        current_query_term += 1
+    print(scores)
     return None #Fuck you bogs
 
 if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
-    print(sort_inverted_index(inverted_index, index))
+    #1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
+    sorted_inverted_index = sort_inverted_index(inverted_index, index)
+    best_match3("prova",sorted_inverted_index)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
