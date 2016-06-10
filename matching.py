@@ -171,39 +171,35 @@ def best_match3(query, sorted_inverted_index,index):
 
     
     ##6  Consider the first term in which there are documents that have not been scored
-    first_unscored_term_index = -1
-    first_unscored_doc_index = -1
+    
     term_index = 0
-    done = False
-    while first_unscored_doc_index == -1 and term_index < len(query_term_ordered_by_impact) and not done:
+    termDone = False
+    while term_index < len(query_term_ordered_by_impact):
+        termDone = False
         query_term = query_term_ordered_by_impact[term_index]
         doc_index = 0
-        ##7 consider the first non-scored document in the index of this term;
-        while first_unscored_term_index == -1 and doc_index < len(sorted_inverted_index[query_term]):
+        while doc_index < len(sorted_inverted_index[query_term]) and not termDone:
             doc_name = sorted_inverted_index[query_term][doc_index][0]
+
+            ##7 consider the first non-scored document in the index of this term;
             if doc_name not in scores:
-                first_unscored_doc_index = doc_index
-                first_unscored_term_index = term_index
-            else:
-                doc_index += 1
+                frequency_current_term  = index[doc_name][query_term]
+                next_term_impact        = impacts[query_term_ordered_by_impact[term_index]]
+                last_document_score = list(scores.items())[-1][1]
+
+                #8  If the frequency of the current term in the current document plus the sum
+                #   of the impact of nex terms is larger than the score of the 20-th scored document,
+                #   then score this document and repeat from 7, otherwise consider the next term and
+                #   repeat from 7
+                if (frequency_current_term + next_term_impact > last_document_score):
+                    scores[doc_name] = compute_score(query_term,index[doc_name])
+                else:
+                    termDone = True
+            doc_index += 1
         term_index +=1
-    term_index -=1
-    print("Not scored",doc_name,"for term ",term_index," and doc ",doc_index)
-    print("Found not scored term",query_term,"for doc",doc_name)
 
-    #8  If the frequency of the current term in the current document plus the sum
-    #   of the impact of nex terms is larger than the score of the 20-th scored document,
-    #   then score this document and repeat from 7, otherwise consider the next term and
-    #   repeat from 7
-    frequency_current_term  = index[doc_name][query_term]
-    next_term_impact        = impacts[query_term_ordered_by_impact[term_index+1]]
-
-    last_document_score = list(scores.items())[-1][1]
-
-    if (frequency_current_term + next_term_impact > last_document_score):
-        compute_score(query_term,index[doc_name])
-    else:
-        
+    # sorted_scores = sorted(scores,key=),reverse=True)
+    sorted_scores = sorted(scores.items(), key = lambda x:x[1], reverse=True)
 
 
 
@@ -211,19 +207,28 @@ def best_match3(query, sorted_inverted_index,index):
 
     #9  Return the 20 documents with higher score
 
-    return None #Fuck you bogs
+    return sorted_scores[:20]
 
 if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
 
+    new_query = "prova vasco"
 
     ##1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
     sorted_inverted_index = sort_inverted_index(inverted_index, index)
-    # print("*************************SORTED INVERTED INDEX****************************")
-    # print(sorted_inverted_index)
-    # print("*************************INDEX****************************")
-    # print(index)
-    best_match3("prova vasco",sorted_inverted_index,index)
+    
+    res = best_match3(new_query,sorted_inverted_index,index)
+    print(new_query)
+    
+    i=0
+    for re in res:
+        i+=1
+        print("\n#",i,)
+        print(re[0])
+        print("Frequency:",re[1])
+        print("Doc:")
+        print(index[re[0]])
+        print("\n")
 
 
 
