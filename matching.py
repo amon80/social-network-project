@@ -117,42 +117,84 @@ def sort_inverted_index(inverted_index, index):
         sorted_inverted_index[query_term] = sorted(frequencies, key= lambda x:x[1], reverse=True)
     return sorted_inverted_index
 
+
+# The Score of a document depend on the frequency of a query term in that document,
+# where the frequency is the ratio between the number of occurences of the term and
+# total number of words in the document
+def compute_score(query_term, doc_frequencies):
+    number_occurences_term = doc_frequencies[query_term]
+    total_occurences = 0
+    for word_frequency in doc_frequencies.values():
+        total_occurences += word_frequency
+    return number_occurences_term / total_occurences
+
+
 #Third variant, it must be compared with best_match2
 #sorted_inverted_index is a dict. Key: words. Value: list of couples. Couples: First term:document. Second term:Frequency
-def best_match3(query, sorted_inverted_index):
+def best_match3(query, sorted_inverted_index,index):    
 
-    impacts = dict()            # key: doc_name | value: impact
-    scores  = []                # key: doc_name | value: score (#occurence of query term / # words)
-
+    impacts = dict()            # key: doc_name     | value: impact
+    scores  = dict()            # key: doc_name     | value: score (#occurence of query term / # words)
+    #sorted_inverted_index      # key: query_item   | value: doc list
     query_words = query.split()
 
-    
+
+
+    ##2  For every query term define its possible impact on the score as the frequency of the most frequent document in its index
     for word in query_words:
-        #2  For every query term define its possible impact on the score as the frequency of the most frequent document in its index
         impacts[word] = sorted_inverted_index[word][0][1]
 
-    #3  Sort the query terms in decreasing order of impact
+
+
+
+    ##3  Sort the query terms in decreasing order of impact
     query_term_ordered_by_impact = sorted(impacts, key=impacts.get, reverse=True)
 
-    #4 consider the first 20 documents in the index of the first query term
-    current_query_term = 0
-    while len(scores) < 20:
-        current_doc = 0
-        while len(scores) < 20 and current_doc < len(sorted_inverted_index[query_term_ordered_by_impact[current_query_term]]):
-            scores.append("diocane")
-            
-            #if sorted_inverted_index[query_term_ordered_by_impact[current_query_term]][current_doc]
-             #   score_list.append()
-        print("dioporco")
-        current_query_term += 1
-    print(scores)
+
+    ##4 consider the first 20 documents in the index of the first query term
+
+    current_query_term_index = 0
+    # iterate until 20 scores have been computed or query terms are over
+    while len(scores) < 20 and current_query_term_index < len(query_term_ordered_by_impact): 
+        current_query_term = query_term_ordered_by_impact[current_query_term_index]
+        current_doc_index = 0
+
+        # iterate until 20 scores have been computed or all documents from current query term have been scored
+        while len(scores) < 20 and current_doc_index < len(sorted_inverted_index[query_term_ordered_by_impact[current_query_term_index]]):
+            current_doc_name = sorted_inverted_index[query_term_ordered_by_impact[current_query_term_index]][current_doc_index][0]
+            ##5  Compute the score for each of these documents
+            if current_doc_name not in scores:
+                scores[current_doc_name] = compute_score(current_query_term,index[current_doc_name])
+            current_doc_index += 1
+        current_query_term_index += 1
+    
+    ##6  Consider the first term in which there are documents that have not been scored
+    first_unscored_term_index = -1
+    first_unscored_doc_index = -1
+    term_index = 0
+    while first_unscored_doc_index == -1 and term_index < len(query_term_ordered_by_impact):
+        print("dio")
+        query_term = query_term_ordered_by_impact[term_index]
+        doc_index = 0
+        ##7 consider the first non-scored document in the index of this term;
+        while first_unscored_term_index == -1 and doc_index < len(sorted_inverted_index[query_term]):
+            print(sorted_inverted_index[query_term][doc_index][0])
+            if sorted_inverted_index[query_term][doc_index][0] not in scores:
+                first_unscored_doc_index = doc_index
+                first_unscored_term_index = term_index
+            doc_index += 1
+        term_index +=1
+
+
+
+
     return None #Fuck you bogs
 
 if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
-    #1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
+    ##1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
     sorted_inverted_index = sort_inverted_index(inverted_index, index)
-    best_match3("prova",sorted_inverted_index)
+    best_match3("test prova vasco",sorted_inverted_index,index)
 
 
 
