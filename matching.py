@@ -167,24 +167,29 @@ def best_match3(query, sorted_inverted_index,index):
                 scores[current_doc_name] = compute_score(current_query_term,index[current_doc_name])
             current_doc_index += 1
         current_query_term_index += 1
+
+    print("scores",scores)
     
     ##6  Consider the first term in which there are documents that have not been scored
     first_unscored_term_index = -1
     first_unscored_doc_index = -1
     term_index = 0
+    print(query_term_ordered_by_impact)
     while first_unscored_doc_index == -1 and term_index < len(query_term_ordered_by_impact):
-        print("dio")
         query_term = query_term_ordered_by_impact[term_index]
         doc_index = 0
         ##7 consider the first non-scored document in the index of this term;
+        print(sorted_inverted_index[query_term])
         while first_unscored_term_index == -1 and doc_index < len(sorted_inverted_index[query_term]):
-            print(sorted_inverted_index[query_term][doc_index][0])
             if sorted_inverted_index[query_term][doc_index][0] not in scores:
+                print(sorted_inverted_index[query_term][doc_index][0])
                 first_unscored_doc_index = doc_index
                 first_unscored_term_index = term_index
-            doc_index += 1
+            else:
+                doc_index += 1
         term_index +=1
 
+    
 
 
 
@@ -194,7 +199,7 @@ if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
     ##1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
     sorted_inverted_index = sort_inverted_index(inverted_index, index)
-    best_match3("test prova vasco",sorted_inverted_index,index)
+    best_match3("prova vasco",sorted_inverted_index,index)
 
 
 
