@@ -14,7 +14,7 @@ def generate_database(start_link_file, database_file_name, n_link_to_follow = 20
             graph = crawl(line, n_link_to_follow, graph)
 
     ngroups = len(graph) // n_elements
-    nodes = graph.keys()
+    nodes = list(graph.keys())
 
     #Adding random nodes
     for i in range(ngroups-1):
@@ -44,5 +44,5 @@ def generate_pages_contents(graph):
     return documents
 
 if __name__ == "__main__":
-    graph = generate_database('links.txt', 'bogs_database.txt', 10, 10)
+    graph = generate_database('links.txt', 'bogs_database.txt', 10, 2)
     print (generate_pages_contents(graph))
