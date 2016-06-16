@@ -173,7 +173,6 @@ def best_match3(query, sorted_inverted_index,index):
     ##6  Consider the first term in which there are documents that have not been scored
     
     term_index = 0
-    termDone = False
     while term_index < len(query_term_ordered_by_impact):
         termDone = False
         query_term = query_term_ordered_by_impact[term_index]
@@ -184,14 +183,17 @@ def best_match3(query, sorted_inverted_index,index):
             ##7 consider the first non-scored document in the index of this term;
             if doc_name not in scores:
                 frequency_current_term  = index[doc_name][query_term]
-                next_term_impact        = impacts[query_term_ordered_by_impact[term_index]]
+                next_terms_impact = 0
+                if term_index+1 < len(query_term_ordered_by_impact):
+                    for i in range(term_index+1, len(query_term_ordered_by_impact)):
+                        next_terms_impact += impacts[query_term_ordered_by_impact[i]]
                 last_document_score = list(scores.items())[-1][1]
 
                 #8  If the frequency of the current term in the current document plus the sum
                 #   of the impact of nex terms is larger than the score of the 20-th scored document,
                 #   then score this document and repeat from 7, otherwise consider the next term and
                 #   repeat from 7
-                if (frequency_current_term + next_term_impact > last_document_score):
+                if (frequency_current_term + next_terms_impact > last_document_score):
                     scores[doc_name] = compute_score(query_term,index[doc_name])
                 else:
                     termDone = True
@@ -201,13 +203,12 @@ def best_match3(query, sorted_inverted_index,index):
     # sorted_scores = sorted(scores,key=),reverse=True)
     sorted_scores = sorted(scores.items(), key = lambda x:x[1], reverse=True)
 
-
-
-    
-
     #9  Return the 20 documents with higher score
+    if len(sorted_scores) > 20:
+        return sorted_scores[0:19]
+    else:
+        return sorted_scores
 
-    return sorted_scores[:20]
 
 if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
