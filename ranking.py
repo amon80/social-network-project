@@ -54,6 +54,41 @@ def trustRank(graph, trusted_pages):
 	return
 
 
+def trustRankProva(graph, trusted_pages, s, step, confidence):
+	nodes = graph.keys()
+	n = len(nodes)
+	done = 0
+	time = 0
+
+	# Initialization
+	rank = dict()
+	for node in trusted_pages:
+		rank[node] = float(1)/2
+
+
+	tmp = dict()
+	while not done and time < step:
+		time += 1
+
+		for node in nodes:
+			# Each node receives a share of 1/n with probability 1-s
+			tmp[node] = float(1-s)/n 
+
+		for node in trusted_pages:
+			for neighbour in graph[node]:
+				# Each node receives a fraction of its neighbour rank with probability s
+				tmp[neighbour] += float(s*rank[node])/len(graph[node])
+
+		# Computes the distance between the old rank vector and the new rank vector in L_1 norm
+		diff = 0
+		for node in nodes:
+			diff += abs(rank[node] - tmp[node])
+			rank[node] = tmp[node]
+
+		if diff <= confidence:
+			done = 1
+	return time, rank
+
 # The idea behind spam mass is that we measure for each page the fraction
 # of its PageRank that comes from spam. We do so by computing both the 
 # ordinary PageRank and the TrustRank based on some teleport set of trustworthy pages.
