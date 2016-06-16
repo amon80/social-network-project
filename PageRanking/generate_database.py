@@ -27,7 +27,6 @@ def generate_database(start_link_file, database_file_name, n_link_to_follow = 20
         for node in graph:
             for edge in graph[node]:
                 writefile.write(node + " " + edge + "\n")
-                # print(node + " " + edge)
     return graph
 
 
@@ -41,6 +40,10 @@ def generate_pages_contents(graph):
             toRemove.append(node)
     for node in toRemove:
         del graph[node]
+        for node1 in graph.keys():
+            if node in graph[node1]:
+                graph[nodes1].remove(node)
+            
     return documents
 
 if __name__ == "__main__":
