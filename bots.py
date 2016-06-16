@@ -128,8 +128,14 @@ class Bot2(Bot):
             # TIE-BREAKING RULE: I choose the bid that is exactly in the middle between my own value and the next bid
             return float(evaluation+payment)/2
 
-        #TIE-BREAKING RULE: If I like slot j, I choose the bid b_i for which I am indifferent from taking j at computed price or taking j-1 at price b_i
-        return (evaluation - float(slot_ctrs[sorted_last_step_bids[preferred_slot]])/slot_ctrs[sorted_last_step_bids[preferred_slot-1]] * (evaluation - payment))
+        
+
+        #TIE-BREAKING RULE: Submit the highest possible bid that gives the desired slot
+        return sorted_last_step_bids[preferred_slot-1] - 1
+
+
+
+
 
 class Bot3(Bot):
     """Best-response bot with altruistic bidding tie-breaking rule"""
@@ -167,8 +173,8 @@ class Bot3(Bot):
             # TIE-BREAKING RULE: I choose the bid that is exactly in the middle between my own value and the next bid
             return float(evaluation+payment)/2
 
-        #TIE-BREAKING RULE: If I like slot j, I choose the bid b_i for which I am indifferent from taking j at computed price or taking j-1 at price b_i
-        return (evaluation - float(slot_ctrs[sorted_last_step_bids[preferred_slot]])/slot_ctrs[sorted_last_step_bids[preferred_slot-1]] * (evaluation - payment))
+        #TIE-BREAKING RULE: Submit the lowest possible bid that gives the desired slot
+        return sorted_last_step_bids[preferred_slot]
 
 class Bot4(Bot):
     """Competitor-bursting bot"""
@@ -299,3 +305,17 @@ def best_response(name, adv_value, slot_ctrs, history):
     
     #TIE-BREAKING RULE: If I like slot j, I choose the bid b_i for which I am indifferent from taking j at computed price or taking j-1 at price b_i
     return (adv_value - float(slot_ctrs[sort_slots[preferred_slot]])/slot_ctrs[sort_slots[preferred_slot-1]] * (adv_value - payment))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
