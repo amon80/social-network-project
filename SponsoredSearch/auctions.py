@@ -21,4 +21,4 @@ def balance(slot_ctrs, bids, starting_budgets, current_budgets, query):
 		query_winners[sorted_slots[i]] = sorted_advertisers[i]
 		query_pay[sorted_advertisers[i]] = bids[query][sorted_advertisers[i]] #Here, we use first price auction, winner pays exactly their bid
 
-	return query_winners, query_pay		
+	return query_winners, query_pay
