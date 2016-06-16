@@ -206,8 +206,11 @@ def best_match3(query, sorted_inverted_index,index):
     
 
     #9  Return the 20 documents with higher score
+    if len(sorted_scores) > 20:
+        return sorted_scores[0:19]
+    else:
+        return sorted_scores
 
-    return sorted_scores[:20]
 
 if __name__ == "__main__":
     (index, inverted_index) = create_word_advs(sys.argv[1])
