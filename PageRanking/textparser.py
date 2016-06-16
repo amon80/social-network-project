@@ -57,18 +57,21 @@ def get_parsed_document(url):
     cleaner.meta = True
     cleaner.links = True
 
-    raw = lxml.html.tostring(cleaner.clean_html(lxml.html.parse(urllib.request.urlopen(url))))
-    raw = lxml.html.fromstring(raw).text_content()
-    raw = raw.rstrip()
-    translator = str.maketrans({key: None for key in string.punctuation})
-    raw = raw.translate(translator)
-    raw = raw.replace('\'', ' ')
-    raw = raw.replace('\n', '')
-    raw = raw.replace('\t', '')
-    raw = raw.lower()
-    #removing non ascii characters
-    raw = ''.join([i if ord(i) < 128 else ' ' for i in raw])
-    return document_parser(raw, False)
+    try:
+        raw = lxml.html.tostring(cleaner.clean_html(lxml.html.parse(urllib.request.urlopen(url))))
+        raw = lxml.html.fromstring(raw).text_content()
+        raw = raw.rstrip()
+        translator = str.maketrans({key: None for key in string.punctuation})
+        raw = raw.translate(translator)
+        raw = raw.replace('\'', ' ')
+        raw = raw.replace('\n', '')
+        raw = raw.replace('\t', '')
+        raw = raw.lower()
+        #removing non ascii characters
+        raw = ''.join([i if ord(i) < 128 else ' ' for i in raw])
+        return document_parser(raw, False)
+    except AttributeError as e:
+        raise e
 
 
 if __name__ == "__main__":
