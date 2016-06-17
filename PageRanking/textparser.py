@@ -69,7 +69,7 @@ def get_parsed_document(url):
         raw = raw.lower()
         #removing non ascii characters
         raw = ''.join([i if ord(i) < 128 else ' ' for i in raw])
-        return document_parser(raw, False)
+        return document_parser(raw)
     except AttributeError as e:
         raise e
 
