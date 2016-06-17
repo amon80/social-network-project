@@ -13,60 +13,51 @@ maxValue = 10
 minBudget = 20
 maxBudget = 40
 
-verbose = True
+verbose = False
 
 
 # generates bidders: evaluation for each query and budget
-def generateAdvertisers(queries,advertisers, minValue, maxValue, minBudget, maxBudget):
-	adv_bids = dict()
-	for query in queries:
-		adv_bids[query] = dict()
-		for advertiser in advertisers:
-			adv_bids[query][advertiser] = randint(minValue,maxValue)
+def generateAdvertisers(queries,advertisers, minValue, maxValue, minBudget, maxBudget):	
+	adv_evaluations = dict()
+	for advertiser in advertisers:
+		adv_evaluations[advertiser] = randint(minValue,maxValue)
 			# if bid is 0, should I remove the bidder from that query?
 
 	adv_budgets = dict()
 	for advertiser in advertisers:
 		adv_budgets[advertiser] = randint(minBudget,maxBudget)
-	return adv_bids,adv_budgets
+	return adv_evaluations,adv_budgets
 
 # generates clickthrough rates for each query and for each position
 def generateSlots(queries, minSlots, maxSlots):
 	slot_ctrs = dict()
-	for query in queries:
-		slot_ctrs[query] = dict()
-		nSlots = randint(minSlots,maxSlots)
-		for i in range(1,nSlots+1):
-			slot_ctrs[query]["id"+str(i)] = random()
+	nSlots = randint(minSlots,maxSlots)
+	for i in range(1,nSlots+1):
+		slot_ctrs["id"+str(i)] = random()
 	return slot_ctrs
 
 
-def generateAuctions(nAuctions,queries,advertisers):
-	for a in range(nAuctions):
-		sc = generateSlots(queries,minSlots,maxSlots)
-		abi, abu = generateAdvertisers(queries,advertisers,minValue,maxValue,minBudget,maxBudget)
-		if (verbose):
-			print("|||||||||||||||||||||| Auction #"+str(a))
-			print("Slots")
-			print(sc)
-			print("Bids")
-			print(abi)
-			print("Budgets")
-			print(abu)
-			print("\n\n\n\n\n")
-
-
-
-#PARAMETERS
-nAuctions = 10
-
-queries = ["bread","bake","flour"]
-advertisers = ["X","Y","Z"]
+def generateAuction(queries,advertisers):
+	sc = generateSlots(queries,minSlots,maxSlots)
+	aev, abu = generateAdvertisers(queries,advertisers,minValue,maxValue,minBudget,maxBudget)
+	if (verbose):
+		print("Auction")
+		print("Slots")
+		print(sc)
+		print("Evaluations")
+		print(aev)
+		print("Budgets")
+		print(abu)
+		print("\n\n")
+	return sc, aev, abu;
 
 
 
 
-generateAuctions(nAuctions,queries,advertisers)
+
+
+
+
 
 
 

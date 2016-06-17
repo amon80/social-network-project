@@ -82,14 +82,16 @@ class Bot1(Bot):
         #3) Evaluate which bid to choose among the ones that allows the advertiser to being assigned the slot selected at the previous step
         if preferred_slot == -1:
             # TIE-BREAKING RULE: I choose the largest bid smaller than my value for which I lose
-            return min(evaluation, sorted_last_step_bids)
+            return min(evaluation, sorted_last_step_bids[len(sorted_last_step_bids)-1])
 
         if preferred_slot == 0:
             # TIE-BREAKING RULE: I choose the bid that is exactly in the middle between my own value and the next bid
             return float(evaluation+payment)/2
 
         #TIE-BREAKING RULE: If I like slot j, I choose the bid b_i for which I am indifferent from taking j at computed price or taking j-1 at price b_i
-        return (evaluation - float(slot_ctrs[sorted_last_step_bids[preferred_slot]])/slot_ctrs[sorted_last_step_bids[preferred_slot-1]] * (evaluation - payment))
+        return (evaluation - float(slot_ctrs[sorted_slots_clicktr[preferred_slot]])/slot_ctrs[sorted_slots_clicktr[preferred_slot-1]] * (evaluation - payment))
+
+
 
 
 class Bot2(Bot):
@@ -122,7 +124,7 @@ class Bot2(Bot):
         #3) Evaluate which bid to choose among the ones that allows the advertiser to being assigned the slot selected at the previous step
         if preferred_slot == -1:
             # TIE-BREAKING RULE: I choose the largest bid smaller than my value for which I lose
-            return min(evaluation, sorted_last_step_bids)
+            return min(evaluation, sorted_last_step_bids[len(sorted_last_step_bids)-1])
 
         if preferred_slot == 0:
             # TIE-BREAKING RULE: I choose the bid that is exactly in the middle between my own value and the next bid
@@ -132,7 +134,6 @@ class Bot2(Bot):
 
         #TIE-BREAKING RULE: Submit the highest possible bid that gives the desired slot
         return sorted_last_step_bids[preferred_slot-1] - 1
-
 
 
 
@@ -167,7 +168,7 @@ class Bot3(Bot):
         #3) Evaluate which bid to choose among the ones that allows the advertiser to being assigned the slot selected at the previous step
         if preferred_slot == -1:
             # TIE-BREAKING RULE: I choose the largest bid smaller than my value for which I lose
-            return min(evaluation, sorted_last_step_bids)
+            return min(evaluation, sorted_last_step_bids[len(sorted_last_step_bids)-1])
 
         if preferred_slot == 0:
             # TIE-BREAKING RULE: I choose the bid that is exactly in the middle between my own value and the next bid
@@ -186,8 +187,12 @@ class Bot4(Bot):
         if step == 0:
             return 0
 
-        last_step_bids = history[step-1]["adv_bids"]
-        return max(last_step_bids)
+        max_bid = -1
+        for step in range(len(history)):
+            for bid in history[step]["adv_bids"].values():
+                if bid >= max_bid:
+                    max_bid = bid   
+        return max_bid
 
 class Bot5(Bot):
     """Budget-saving bot"""
