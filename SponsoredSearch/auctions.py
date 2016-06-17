@@ -46,5 +46,4 @@ def myBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 	for i in range(min(len(sorted_slots),len(sorted_advertisers))):
 		query_winners[sorted_slots[i]] = sorted_advertisers[i]
 		query_pay[sorted_advertisers[i]] = bids[sorted_advertisers[i]] #Here, we use first price auction, winner pays exactly their bid
-
 	return query_winners, query_pay

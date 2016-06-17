@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from random import randint
-
+from math import ceil
 
 
 # Bots:
@@ -46,11 +46,14 @@ def evaluate_slots(sorted_slots_clicktr, sorted_last_step_bids, slot_ctrs, last_
 
         #2) Evaluate for each slot, which one gives to the advertiser the largest utility
         new_utility = slot_ctrs[sorted_slots_clicktr[i]]*(evaluation - tmp_pay)
-
+        
         if new_utility > utility :
             utility = new_utility
             preferred_slot = i
             payment = tmp_pay
+
+    if utility<0:
+        preferred_slot = -1
     return utility, preferred_slot, payment
 
 class Bot1(Bot):
@@ -58,11 +61,13 @@ class Bot1(Bot):
     def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
         step = len(history)
 
+        if evaluation==0:
+            return 0
         #If this is the first step there is no history and no best-response is possible
         #We suppose that adevertisers simply bid their value.
         #Other possibilities would be to bid 0 or to choose a bid randomly between 0 and their value.
         if step == 0:
-            return 0
+            return evaluation
 
         #Initialization
         last_step_slots = history[step-1]["adv_slots"]
@@ -104,7 +109,7 @@ class Bot2(Bot):
         #We suppose that adevertisers simply bid their value.
         #Other possibilities would be to bid 0 or to choose a bid randomly between 0 and their value.
         if step == 0:
-            return 0
+            return evaluation
 
         #Initialization
         last_step_slots = history[step-1]["adv_slots"]
@@ -133,7 +138,7 @@ class Bot2(Bot):
         
 
         #TIE-BREAKING RULE: Submit the highest possible bid that gives the desired slot
-        return sorted_last_step_bids[preferred_slot-1] - 1
+        return sorted_last_step_bids[preferred_slot-1] - 0.1
 
 
 
@@ -148,7 +153,7 @@ class Bot3(Bot):
         #We suppose that adevertisers simply bid their value.
         #Other possibilities would be to bid 0 or to choose a bid randomly between 0 and their value.
         if step == 0:
-            return 0
+            return evaluation
 
         #Initialization
         last_step_slots = history[step-1]["adv_slots"]
@@ -185,7 +190,7 @@ class Bot4(Bot):
         step = len(history)
 
         if step == 0:
-            return 0
+            return evaluation
 
         max_bid = -1
         for step in range(len(history)):
@@ -202,28 +207,31 @@ class Bot5(Bot):
         step = len(history)
 
         if step == 0:
-            return 0
+            return evaluation
 
         last_step_bids = history[step-1]["adv_bids"]
-        min_bid_last_step = min(last_step_bids)
+        min_bid_last_step = min(last_step_bids.values())
+        #max?
 
         return min(min_bid_last_step, evaluation)
 
 class Bot6(Bot):
     """Random bot"""
     """Submit random bid"""
-    def response(self,name,bids,slot_ctrs,history):
+    def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
 
         step = len(history)
 
         if step == 0:
-            return 0
+            return evaluation
 
         last_step_bids = history[step-1]["adv_bids"]
-        min_bid_last_step = min(last_step_bids)
-        max_bid_last_step = max(last_step_bids)
-
-        return randint(min_bid_last_step,max_bid_last_step)
+        min_bid_last_step = min(last_step_bids.values())
+        max_bid_last_step = max(last_step_bids.values())
+        mab = ceil(min_bid_last_step*10)
+        mib = ceil(max_bid_last_step*10)
+        res = randint(mab,mib)
+        return res/10
 
 class Bot7(Bot):
     """Combination of the above bots based on the current badget or the advertiser value for the current query"""
@@ -308,6 +316,8 @@ def best_response(name, adv_value, slot_ctrs, history):
         # TIE-BREAKING RULE: I choose the bid that is exactly in the middle between my own value and the next bid
         return float(adv_value+payment)/2
     
+
+
     #TIE-BREAKING RULE: If I like slot j, I choose the bid b_i for which I am indifferent from taking j at computed price or taking j-1 at price b_i
     return (adv_value - float(slot_ctrs[sort_slots[preferred_slot]])/slot_ctrs[sort_slots[preferred_slot-1]] * (adv_value - payment))
 

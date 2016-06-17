@@ -2,11 +2,11 @@ from random import randint, random
 
 ################ PARAMETERS
 # range of number of slots available to sell for each query
-minSlots = 2
-maxSlots = 3
+minSlots = 8
+maxSlots = 8
 
 #range of evaluation for each query
-minValue = 0
+minValue = 6
 maxValue = 10
 
 #range of budgets for each bidder
