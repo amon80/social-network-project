@@ -96,7 +96,11 @@ class Bot1(Bot):
         #TIE-BREAKING RULE: If I like slot j, I choose the bid b_i for which I am indifferent from taking j at computed price or taking j-1 at price b_i
         return (evaluation - float(slot_ctrs[sorted_slots_clicktr[preferred_slot]])/slot_ctrs[sorted_slots_clicktr[preferred_slot-1]] * (evaluation - payment))
 
+    def __str__(self):
+        return "Bot1"
 
+    def strategy(self):
+        return "Best-response bot with balanced tie-breaking rule"
 
 
 class Bot2(Bot):
@@ -140,7 +144,11 @@ class Bot2(Bot):
         #TIE-BREAKING RULE: Submit the highest possible bid that gives the desired slot
         return sorted_last_step_bids[preferred_slot-1] - 0.1
 
+    def __str__(self):
+        return "Bot2"
 
+    def strategy(self):
+        return "Competitor bursting, Submit the highest possible bid that gives the desired slot"
 
 
 class Bot3(Bot):
@@ -182,6 +190,13 @@ class Bot3(Bot):
         #TIE-BREAKING RULE: Submit the lowest possible bid that gives the desired slot
         return sorted_last_step_bids[preferred_slot]
 
+    def __str__(self):
+        return "Bot3"
+
+    def strategy(self):
+        return "Altruistic bidding, submit the lowest possible bid that gives the desired slot"
+
+
 class Bot4(Bot):
     """Competitor-bursting bot"""
     """Submit the highest bid seen in previous auctions, even if it is greater than own value"""
@@ -199,6 +214,12 @@ class Bot4(Bot):
                     max_bid = bid   
         return max_bid
 
+    def __str__(self):
+        return "Bot4"
+
+    def strategy(self):
+        return "Competitor-bursting bot, Submit the highest bid seen in previous auctions"
+
 class Bot5(Bot):
     """Budget-saving bot"""
     """Submit minimum among the last non-winning bid and the advertiser value for the query"""
@@ -214,6 +235,12 @@ class Bot5(Bot):
         #max?
 
         return min(min_bid_last_step, evaluation)
+
+    def __str__(self):
+        return "Bot5"
+
+    def strategy(self):
+        return "Budget-saving bot, Submit minimum among the last non-winning bid and the advertiser value for the query"
 
 class Bot6(Bot):
     """Random bot"""
@@ -233,11 +260,23 @@ class Bot6(Bot):
         res = randint(mab,mib)
         return res/10
 
+    def __str__(self):
+        return "Bot6"
+
+    def strategy(self):
+        return "Random bot, Submit random bid"
+
 class Bot7(Bot):
     """Combination of the above bots based on the current badget or the advertiser value for the current query"""
     
     def response(self,name,bids,slot_ctrs,history):
         return
+
+    def __str__(self):
+        return "Bot7"
+
+    def strategy(self):
+        return "Combination of the above bots based on the current badget or the advertiser value for the current query"
 
 #We implement a possible bot for an advertiser in a repeated GSP auction
 #The bot of an advertiser is a program that, given the history of what occurred in previous auctions, suggest a bid for the next auction.
