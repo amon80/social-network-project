@@ -233,10 +233,9 @@ def runAuctions(ourbot, otherbots):
 				allUtils[adv] += history[step]["adv_utilities"][adv]
 		# if(auctionIndex%10==0):
 		# 	print("|",end="",flush="true")
-	# print("")
 	printTableHeader(adv_bots)
 	for adv in allUtils.keys():
-		f.write(str(round((allUtils[adv]/nAuctions),2))+"\t")
+			f.write(str(round((allUtils[adv]/nAuctions),2))+"\t")
 		# f.write("%.2f"%(allUtils[adv]/nAuctions))
 	f.write("\n")
 
