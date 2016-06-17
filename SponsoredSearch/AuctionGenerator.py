@@ -17,7 +17,7 @@ verbose = False
 
 
 # generates bidders: evaluation for each query and budget
-def generateAdvertisers(queries,advertisers, minValue, maxValue, minBudget, maxBudget):	
+def generateAdvertisers(advertisers, minValue, maxValue, minBudget, maxBudget):	
 	adv_evaluations = dict()
 	for advertiser in advertisers:
 		adv_evaluations[advertiser] = randint(minValue,maxValue)
@@ -29,7 +29,7 @@ def generateAdvertisers(queries,advertisers, minValue, maxValue, minBudget, maxB
 	return adv_evaluations,adv_budgets
 
 # generates clickthrough rates for each query and for each position
-def generateSlots(queries, minSlots, maxSlots):
+def generateSlots( minSlots, maxSlots):
 	slot_ctrs = dict()
 	nSlots = randint(minSlots,maxSlots)
 	for i in range(1,nSlots+1):
@@ -37,9 +37,9 @@ def generateSlots(queries, minSlots, maxSlots):
 	return slot_ctrs
 
 
-def generateAuction(queries,advertisers):
-	sc = generateSlots(queries,minSlots,maxSlots)
-	aev, abu = generateAdvertisers(queries,advertisers,minValue,maxValue,minBudget,maxBudget)
+def generateAuction(advertisers):
+	sc = generateSlots(minSlots,maxSlots)
+	aev, abu = generateAdvertisers(advertisers,minValue,maxValue,minBudget,maxBudget)
 	if (verbose):
 		print("Auction")
 		print("Slots")
