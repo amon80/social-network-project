@@ -268,8 +268,19 @@ class Bot6(Bot):
 
 class Bot7(Bot):
     """Combination of the above bots based on the current badget or the advertiser value for the current query"""
+    "e.g. do competitor-bursting as long as your current budget is half the initial budget and then do best-response"
     
-    def response(self,name,bids,slot_ctrs,history):
+    def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
+        step = len(history)
+
+        if step == 0:
+            return evaluation
+
+        if current_budget > initial_budget/2:
+            return Bot4().response(name,evaluation,history,slot_ctrs,current_budget, initial_budget)
+        else:
+            return Bot1().response(name,evaluation,history,slot_ctrs,current_budget, initial_budget)
+
         return
 
     def __str__(self):

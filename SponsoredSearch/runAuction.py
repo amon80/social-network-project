@@ -113,11 +113,11 @@ def printInput(slots,adv_values,adv_budgets,adv_bots):
 	return
 
 def printTableHeader(advs):
-	print("____________________________________________________________")
-	header = ""
+	f.write("\n____________________________________________________________")
+	header = "\n"
 	for adv in advs.keys():
-		header += adv+"\t"
-	print(header)
+		header += adv+"\t\t"
+	f.write(header+"\n")
 	return
 
 def printTableRow(step,budgets,bids,slots,payments,utilities,evaluation):
@@ -170,9 +170,11 @@ def runAuctions(ourbot, otherbots):
 		allUtils[adv] = 0
 
 
-	f.write("Us\t"+str(adv_bots["a"])+"\t"+str(adv_bots["a"].strategy()))
+	f.write("\n____________________________________________________________")
+	f.write("\n____________________________________________________________")
+	f.write("\nUs\t\t"+str(adv_bots["a"])+"\t"+str(adv_bots["a"].strategy()))
 	
-	f.write("Enemy\t"+str(adv_bots["b"])+"\t"+str(adv_bots["b"].strategy()))
+	f.write("\nEnemy\t"+str(adv_bots["b"])+"\t"+str(adv_bots["b"].strategy()))
 
 	for auctionIndex in range(nAuctions):
 		slots = generateSlots(queries,minSlots,maxSlots)
@@ -192,7 +194,7 @@ def runAuctions(ourbot, otherbots):
 			
 			# done = True
 			for adv_name in adv_bots.keys():
-				adv_bids[adv_name] = adv_bots[adv_name].response(adv_name,adv_values[adv_name],history,slots,0,0)
+				adv_bids[adv_name] = adv_bots[adv_name].response(adv_name,adv_values[adv_name],history,slots,adv_budgets[adv],adv_sbudgets[adv])
 				# if adv_bids[adv_name] > adv_values[adv_name]:
 					# print("DIOPORCO perche' cazzo",adv_name,"ha puntato","%.1f" % adv_bids[adv_name],"se lo valutava","%.1f"%adv_values[adv_name],"ma bisogna essere degli stronzi pero'")
 				# if step == 0 or adv_bids[adv_name] != history[step-1]["adv_bids"][adv_name]:
@@ -232,9 +234,9 @@ def runAuctions(ourbot, otherbots):
 		# if(auctionIndex%10==0):
 		# 	print("|",end="",flush="true")
 	# print("")
-	# printTableHeader(adv_bots)
+	printTableHeader(adv_bots)
 	for adv in allUtils.keys():
-		f.write(str(round((allUtils[adv]/nAuctions),2)))
+		f.write(str(round((allUtils[adv]/nAuctions),2))+"\t")
 		# f.write("%.2f"%(allUtils[adv]/nAuctions))
 	f.write("\n")
 
