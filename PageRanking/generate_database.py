@@ -19,9 +19,13 @@ def generate_database(start_link_file, database_file_name, n_link_to_follow = 20
     #Adding random nodes
     for i in range(ngroups-1):
         for j in range(i+1, ngroups):
-            random1 = random.randint(i*n_elements, (i+1)*n_elements)
-            random2 = random.randint(j*n_elements, (j+1)*n_elements)
-            graph[nodes[random1]].add(nodes[random2])
+            k = 0
+            while k < 10:
+                random1 = random.randint(i*n_elements, (i+1)*n_elements)
+                random2 = random.randint(j*n_elements, (j+1)*n_elements)
+                if nodes[random2] not in graph[nodes[random1]]:
+                    graph[nodes[random1]].add(nodes[random2])
+                    k += 1
             
     with open(database_file_name, "w") as writefile:
         for node in graph:
