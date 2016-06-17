@@ -19,12 +19,11 @@
 ###BEST MATCH###
 
 import sys
-from collections import OrderedDict
 
 #Creation of inverted index
 #We create an inverted index with an entry for every word of a document or for any word on which advertisers requested to appear
 #We also create the non-inverted index, so that it's easy to compute frequencies
-def create_word_advs(databasefile):
+def create_indeces(databasefile):
     inverted_index = dict()
     index = dict()
 
@@ -33,14 +32,14 @@ def create_word_advs(databasefile):
         for line in infile:
             line = line.rstrip()
             name_list = line.split(' ',1)
-            name=name_list[0]
+            name = name_list[0]
             if name not in index.keys():
                 index[name] = dict()
-            queries=name_list[1].split(',')
+            queries = name_list[1].split(',')
             
             for i in range(len(queries)):
                 
-                query_words=queries[i].split()
+                query_words = queries[i].split()
                 
                 for word in query_words:
                     if word not in index[name]:
@@ -57,20 +56,20 @@ def create_word_advs(databasefile):
 #First variant, using only inverted_index
 #Given a query, each document score is proportional to the number of times it contains query terms
 def best_match(query, threshold, inverted_index):
-    adv_weights = dict()
+    scores = dict()
     best_docs = set()
     
     query_words = query.split()
     #For every word we look at each document in the list and we increment the document's weight
     for word in query_words:
         for doc in inverted_index[word].keys():
-            if doc not in adv_weights.keys():
-                adv_weights[doc] = inverted_index[word][doc]
+            if doc not in scores:
+                scores[doc] = inverted_index[word][doc]
             else:
-                adv_weights[doc] += inverted_index[word][doc]
+                scores[doc] += inverted_index[word][doc]
 
             #We use a threshold to choose which document must be returned
-            if adv_weights[doc] >= threshold:
+            if scores[doc] >= threshold:
                 best_docs.add(doc)
                 
     return best_docs    
@@ -88,7 +87,7 @@ def compute_frequency(index, document, word):
 #Given a query, each document score is proportional to the frequency of each query term in it
 def best_match2(query, inverted_index, index):
 
-    scores = OrderedDict()
+    scores = dict()
     query_words = query.split()
 
     #For every word we look at each document in the list and we increment the document's weight
@@ -96,7 +95,7 @@ def best_match2(query, inverted_index, index):
         for doc in inverted_index[word].keys():
             #Computing word frequence in doc
             frequency = compute_frequency(index, doc, word)
-            if doc not in adv_weights.keys():
+            if doc not in scores:
                 scores[doc] = frequency
             else:
                 scores[doc] += frequency
@@ -211,39 +210,24 @@ def best_match3(query, sorted_inverted_index,index):
 
 
 if __name__ == "__main__":
-    (index, inverted_index) = create_word_advs(sys.argv[1])
+    (index, inverted_index) = create_indeces(sys.argv[1])
+    
+    print(index)
 
     new_query = "prova vasco"
 
     ##1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
-    sorted_inverted_index = sort_inverted_index(inverted_index, index)
-    
-    res = best_match3(new_query,sorted_inverted_index,index)
-    print(new_query)
-    
-    i=0
-    for re in res:
-        i+=1
-        print("\n#",i,)
-        print(re[0])
-        print("Frequency:",re[1])
-        print("Doc:")
-        print(index[re[0]])
-        print("\n")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # sorted_inverted_index = sort_inverted_index(inverted_index, index)
+    #
+    # res = best_match3(new_query,sorted_inverted_index,index)
+    # print(new_query)
+    #
+    # i=0
+    # for re in res:
+    #     i+=1
+    #     print("\n#",i,)
+    #     print(re[0])
+    #     print("Frequency:",re[1])
+    #     print("Doc:")
+    #     print(index[re[0]])
+    #     print("\n")
