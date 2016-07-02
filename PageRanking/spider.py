@@ -4,7 +4,7 @@ import urllib.request
 import urllib.error
 import lxml.html
 
-def crawl(url, number_of_links_to_follow, graph = None, verbose= False, graphVerbose = False, errorVerbose = False):
+def crawl(url, number_of_links_to_follow, graph = None, verbose= True, graphVerbose = False, errorVerbose = True):
 
     actual_layer = set()
     next_layer = set()
@@ -44,6 +44,8 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= False, graphVer
                     if verbose:
                         print("Link founded: " + link)
                     if linkPattern.match(link): 
+                        if actual_url in link:
+                            continue
                         try:
                             urllib.request.urlopen(link)
                             if link not in graph:

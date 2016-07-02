@@ -93,6 +93,5 @@ def create_spam_farm(graph, index, supporting_pages=100, random_pages_linking_sp
             index["target"][sorted_most_frequent_terms[i][0]] = sorted_most_frequent_terms[i][1]
 
 if __name__ == "__main__":
-    graph = generate_graph('links.txt', 5, 2)
-    index = generate_pages_contents(graph)
-    create_spam_farm(graph,index, supporting_pages=10, random_pages_linking_spam=5)
+    graph = generate_graph('links.txt')
+    write_graph(graph, 'graph.txt')
