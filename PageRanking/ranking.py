@@ -1,4 +1,3 @@
-
 # As seen during the course
 def pageRank(graph, s, step, confidence):
 	nodes = graph.keys()
@@ -105,29 +104,3 @@ def spamMass(graph):
 		finalRank[node] = ( prRank[node] - trRank[node] ) / trRank[node] 
 
 	return finalRank
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

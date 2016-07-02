@@ -25,6 +25,7 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= False, graphVer
     linkPattern = re.compile("^(?:http|https):\/\/(?:[\w\.\-\+]+:{0,1}[\w\.\-\+]*@)?(?:[a-z0-9\-\.]+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+)|\?(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+))?$")
     i = 0
     layer = 0
+    breaked = False
     while i < number_of_links_to_follow:
         if len(actual_layer) == 0:
             break
@@ -58,6 +59,13 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= False, graphVer
                                 crawledLinks.add(link) 
                                 next_layer.add(link)
                                 i += 1
+                                if verbose:
+                                    print("Link followed until now " + str(i))
+                                if i >= number_of_links_to_follow:
+                                    if verbose:
+                                        print("Reached " + str(number_of_links_to_follow))
+                                    breaked = True
+                                    break
                             else:
                                 if verbose:
                                     print("Refusing " + link + " because it was already added")
@@ -76,13 +84,20 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= False, graphVer
             except urllib.error.URLError as e:
                 if errorVerbose:
                     print("Start link " + str(actual_url) + " caused " +  str(e) + " so it wasn't added")
-        if verbose:
-            print("-----------------------------")
-            print("Finished layer " + str(layer))
-            print("-----------------------------")
-        layer += 1
-        actual_layer = next_layer
-        next_layer = set()
+        if not breaked:
+            if verbose:
+                print("-----------------------------")
+                print("Finished layer " + str(layer))
+                print("-----------------------------")
+            layer += 1
+            actual_layer = next_layer
+            next_layer = set()
+        else:
+            if verbose:
+                print("-----------------------------")
+                print("Ended due to number_of_links_to_follow reached")
+                print("-----------------------------")
+            break
     return graph
 
 if __name__ == "__main__":
