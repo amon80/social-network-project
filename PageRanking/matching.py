@@ -195,6 +195,7 @@ def best_match3(query, sorted_inverted_index,index):
     # sorted_scores = sorted(scores,key=),reverse=True)
     sorted_scores = sorted(scores.items(), key = lambda x:x[1], reverse=True)
 
+    
     #9  Return the 20 documents with higher score
     if len(sorted_scores) > 20:
         return sorted_scores[0:19]
