@@ -3,10 +3,28 @@
 import string
 import nltk
 import urllib.request
-from nltk.stem import WordNetLemmatizer
 import lxml
-from lxml.html.clean import Cleaner
 import sys
+from nltk.stem import WordNetLemmatizer
+from lxml.html.clean import Cleaner
+from html.parser import HTMLParser
+from MyException import MyException
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.strict = False
+        self.convert_charrefs= True
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 #Given a file with a stopword for line, constructs a set with stopwords
 def stop_word_list_constructor(stopword_file):
@@ -50,7 +68,7 @@ def document_parser(document, removeLowFrequency=True, lowFrequency=1):
     return document_words
 
 #Given a url gets the document, cleans it and parses it
-def get_parsed_document(url):
+def get_parsed_document(url,verbose = True):
     cleaner = Cleaner()
     cleaner.javascript = True
     cleaner.style = True
@@ -58,20 +76,26 @@ def get_parsed_document(url):
     cleaner.links = True
 
     try:
-        raw = lxml.html.tostring(cleaner.clean_html(lxml.html.parse(urllib.request.urlopen(url))))
-        raw = lxml.html.fromstring(raw).text_content()
+        request_object = urllib.request.urlopen(url)
+        parsed_document = lxml.html.parse(request_object)
+        cleaned_document = cleaner.clean_html(parsed_document)
+        bytes_document = lxml.html.tostring(cleaned_document)
+        stringed_document = bytes_document.decode("utf-8")
+        raw = strip_tags(stringed_document)
         raw = raw.rstrip()
+        #removing punctuation and trailers
         translator = str.maketrans({key: None for key in string.punctuation})
         raw = raw.translate(translator)
         raw = raw.replace('\'', ' ')
-        raw = raw.replace('\n', '')
-        raw = raw.replace('\t', '')
+        raw = raw.replace('\n', ' ')
+        raw = raw.replace('\t', ' ')
+        raw = raw.replace('\r', ' ')
         raw = raw.lower()
         #removing non ascii characters
         raw = ''.join([i if ord(i) < 128 else ' ' for i in raw])
         return document_parser(raw)
-    except AttributeError as e:
-        raise e
+    except:
+        raise MyException(url + " caused error while gettint it's contents")
 
 
 if __name__ == "__main__":

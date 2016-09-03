@@ -3,8 +3,10 @@ import re
 import urllib.request
 import urllib.error
 import lxml.html
+import ssl
+import http.client
 
-def crawl(url, number_of_links_to_follow, graph = None, verbose= True, graphVerbose = False, errorVerbose = True):
+def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False, graphVerbose = False, errorVerbose = True, numLinkVerbose=True):
 
     actual_layer = set()
     next_layer = set()
@@ -23,15 +25,20 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= True, graphVerb
 
     actual_layer.add(url)
     linkPattern = re.compile("^(?:http|https):\/\/(?:[\w\.\-\+]+:{0,1}[\w\.\-\+]*@)?(?:[a-z0-9\-\.]+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+)|\?(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+))?$")
-    i = 0
+    sites_to_avoid = ["facebook", "twitter", "instagram", "youtube", "plus.google"]
+    examined_links = 0
     layer = 0
     breaked = False
-    while i < number_of_links_to_follow:
+    while examined_links < number_of_links_to_follow:
         if len(actual_layer) == 0:
+            break
+        if breaked:
             break
         for actual_url in actual_layer:
             if verbose:
                 print("Examining: " + actual_url)
+            if breaked:
+                break
             try:
                 url_html = urllib.request.urlopen(actual_url)
                 if actual_url not in graph:
@@ -45,7 +52,14 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= True, graphVerb
                         print("Link founded: " + link)
                     if linkPattern.match(link): 
                         if actual_url in link:
+                            if verbose:
+                                print("Found local loop")
                             continue
+                        for site in sites_to_avoid:
+                            if site in actual_url:
+                                if errorVerbose:
+                                    print("Avoiding " + site)
+                                continue
                         try:
                             urllib.request.urlopen(link)
                             if link not in graph:
@@ -60,12 +74,12 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= True, graphVerb
                                     print("Adding " + link + " ")
                                 crawledLinks.add(link) 
                                 next_layer.add(link)
-                                i += 1
-                                if verbose:
-                                    print("Link followed until now " + str(i))
-                                if i >= number_of_links_to_follow:
-                                    if verbose:
-                                        print("Reached " + str(number_of_links_to_follow))
+                                examined_links += 1
+                                if numLinkVerbose:
+                                    print(str(pid) + " --- Link followed until now " + str(examined_links))
+                                if examined_links >= number_of_links_to_follow:
+                                    if numLinkVerbose:
+                                        print(str(pid) + " --- Reached " + str(number_of_links_to_follow))
                                     breaked = True
                                     break
                             else:
@@ -77,15 +91,39 @@ def crawl(url, number_of_links_to_follow, graph = None, verbose= True, graphVerb
                         except urllib.error.URLError as e:
                             if errorVerbose:
                                 print(str(link) + " caused " + str(e) + " so it wasn't added")
+                        except ssl.CertificateError as e:
+                            if errorVerbose:
+                                print(str(link) + " caused " + str(e) + " so it wasn't added")
+                        except lxml.etree.SerialisationError as e:
+                            if errorVerbose:
+                                print(str(actual_url) + " caused SerialisationError, so it wasn't added");
+                        except http.client.RemoteDisconnected as e:
+                            if errorVerbose:
+                                print(str(actual_url) + "caused http.client.RemoteDisconnected error, so it wasn't added")
+                        except:
+                            if errorVerbose:
+                                print(str(actual_url) + "caused unknown error, so it wasn't added")
                     else:
                         if verbose:
-                            print("Refusing " + link + "because did not match regexp")
+                            print("Refusing " + link + " because did not match regexp")
             except urllib.error.HTTPError as e:
                 if errorVerbose:
                     print("Start link " + str(actual_url) + " caused " +  str(e) + " so it wasn't added")
             except urllib.error.URLError as e:
                 if errorVerbose:
                     print("Start link " + str(actual_url) + " caused " +  str(e) + " so it wasn't added")
+            except ssl.CertificateError as e:
+                if errorVerbose:
+                    print(str(actual_url) + " caused " + str(e) + " so it wasn't added")
+            except lxml.etree.SerialisationError as e:
+                if errorVerbose:
+                    print(str(actual_url) + " caused SerialisationError, so it wasn't added");
+            except http.client.RemoteDisconnected as e:
+                if errorVerbose:
+                    print(str(actual_url) + "caused http.client.RemoteDisconnected error, so it wasn't added")
+            except:
+                if errorVerbose:
+                    print(str(actual_url) + "caused unknown error, so it wasn't added")
         if not breaked:
             if verbose:
                 print("-----------------------------")
