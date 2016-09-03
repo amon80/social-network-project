@@ -64,13 +64,16 @@ def write_index(index, output_file):
         for page in index:
             f.write(page + " ")
             for query_term in index[page]:
-                f.write(query_term + ",")
+                num_times = index[page][query_term]
+                for i in range(num_times):
+                    if i != num_times-1:
+                        f.write(query_term + ",")
             f.write("\n")
 
 def generate_pages_contents(nodes, verbose = True):
     index = dict()
     toRemove = []
-    current_node = 0
+    current_node = 1
     total_nodes = len(nodes)
     pid = os.getpid()
     for node in nodes:
@@ -84,13 +87,8 @@ def generate_pages_contents(nodes, verbose = True):
             if verbose:
                 print(str(pid) + " - Processed node " + str(current_node) + " out of " + str(total_nodes))
             current_node += 1
-    for node in toRemove:
-        del graph[node]
-        for node1 in graph.keys():
-            if node in graph[node1]:
-                graph[node1].remove(node)
 
-    return index
+    return (index, toRemove)
 
 def find_most_frequent_term(index, doc, termsToAvoid = set()):
     most_frequent_score = 0
@@ -148,10 +146,21 @@ def write_index_from_graph(graph_input_file, index_output_file):
         list_list_nodes[-1].append(nodes[actual_node])
         actual_node += 1
     p = Pool(num_cores)
-    indeces = p.map(generate_pages_contents, list_list_nodes)
+    indeces_and_nodes_to_be_removed = p.map(generate_pages_contents, list_list_nodes)
     i = 0
-    for index in indeces:
-        write_index(str(i)+"-"+index_output_file)
+    for index_node_to_be_removed_tuple in indeces_and_nodes_to_be_removed:
+        index = index_node_to_be_removed_tuple[0]
+        toRemove = index_node_to_be_removed_tuple[1]
+        for node in toRemove:
+            del graph[node]
+            for node1 in graph.keys():
+                if node in graph[node1]:
+                    graph[node1].remove(node)
+        write_index(index, str(i)+"-"+index_output_file)
+        i += 1
+    graph_output_file = graph_input_file + 'with_no_unreachable_nodes'
+    write_graph(graph, graph_output_file)
+
 
 if __name__ == "__main__":
     list_links = []
