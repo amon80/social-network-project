@@ -67,21 +67,22 @@ def write_index(index, output_file):
                 f.write(query_term + ",")
             f.write("\n")
 
-def generate_pages_contents(graph, verbose = True):
+def generate_pages_contents(nodes, verbose = True):
     index = dict()
     toRemove = []
     current_node = 0
-    total_nodes = len(graph.keys())
-    for node in graph.keys():
+    total_nodes = len(nodes)
+    pid = os.getpid()
+    for node in nodes:
         try:
             index[node] = get_parsed_document(node)
         except:
             if verbose:
-                print(node + " is being removed from the graph")
+                print(str(pid) + " - " + node + " is being removed from the graph")
             toRemove.append(node)
         finally:
             if verbose:
-                print("Processed node " + str(current_node) + " out of " + str(total_nodes))
+                print(str(pid) + " - Processed node " + str(current_node) + " out of " + str(total_nodes))
             current_node += 1
     for node in toRemove:
         del graph[node]
@@ -128,11 +129,29 @@ def create_spam_farm(graph, index, supporting_pages=100, random_pages_linking_sp
         if sorted_most_frequent_terms[i][0] not in index["target"]:
             index["target"][sorted_most_frequent_terms[i][0]] = sorted_most_frequent_terms[i][1]
 
+#parallel version, set num_cores to 1 for sequential
 def write_index_from_graph(graph_input_file, index_output_file):
     graph = read_graph(graph_input_file)
-    index = generate_pages_contents(graph)
-    write_graph(graph, graph_input_file+'_with_no_unreachable_nodes')
-    write_index(index_output_file)
+    nodes = list(graph.keys())
+    list_list_nodes = []
+    num_cores = 7
+    for i in range(num_cores):
+       list_list_nodes.append(list())
+    num_nodes = len(nodes)
+    num_nodes_for_thread = num_nodes // num_cores
+    actual_node = 0
+    for i in range(num_cores):
+        for j in range(num_nodes_for_thread):
+            list_list_nodes[i].append(nodes[actual_node])
+            actual_node += 1
+    while actual_node < num_nodes:
+        list_list_nodes[-1].append(nodes[actual_node])
+        actual_node += 1
+    p = Pool(num_cores)
+    indeces = p.map(generate_pages_contents, list_list_nodes)
+    i = 0
+    for index in indeces:
+        write_index(str(i)+"-"+index_output_file)
 
 if __name__ == "__main__":
     list_links = []
