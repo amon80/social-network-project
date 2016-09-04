@@ -1,7 +1,9 @@
 from auctions import myBalance, budgetedVCGBalance
 from AuctionGenerator import generateAdvertisers,generateSlots
 from bots import Bot1, Bot2, Bot3, Bot4, Bot5, Bot6, Bot7
+from Reporter import *
 from string import ascii_lowercase
+from random import randint
 from math import ceil
 import time
 
@@ -10,51 +12,30 @@ import time
 number_of_bots = 8
 
 # range of number of slots available to sell for each query
-minSlots = 2
-maxSlots = 4
+minSlots = 3
+maxSlots = 3
 
 #range of evaluation for each query
 minValue = 0
 maxValue = 10
 
 #range of budgets for each bidder
-minBudget = 200
-maxBudget = 700
+minBudget = 100
+maxBudget = 200
 
 #number of random executions
-nAuctions = 1
-max_step = 10
-	
+nAuctions = 1000
+max_step = 100
+
+isVCG = False
+
 verbose = False
+recap = False
+mulrecap = True
 
+botname = "a"
 
-def printTableRow(step,budgets,bids,slots,payments,utilities,evaluation):
-	print("________________________________________________________________________")
-	print("#",step,end="\t")
-	for adv in budgets.keys():
-		print(adv,end="\t")
-	print("\n________________________________________________________________________")
-	print("budget",end="\t")
-	for adv in budgets.keys():
-		print("%.1f" % budgets[adv],end="\t")
-	print("\nevals",end="\t")
-	for adv in budgets.keys():
-		print("%.1f" % evaluation[adv],end="\t")
-	print("\nbids",end="\t")
-	for adv in budgets.keys():
-		print("%.1f" % bids[adv],end="\t")
-	print("\npaid",end="\t")
-	for adv in budgets.keys():
-		if adv in payments.keys():
-			print("%.1f" % payments[adv],end="\t")
-		else:
-			print(end="\t")
-	print("\nutils",end="\t")
-	for adv in budgets.keys():
-		print("%.1f" % utilities[adv],end="\t")
-	print(end="\n")
-	return
-
+no = 0
 
 def generateBots(ourbot, otherbots):
 	adv_bots = dict()
@@ -63,20 +44,27 @@ def generateBots(ourbot, otherbots):
 	#instantiate our Bot
 	adv_bots[ascii_lowercase[adv_counter]] = ourbot()
 	adv_counter += 1
-	
+
 	#instantiate all other bots
 	while adv_counter < number_of_bots:
 		adv_bots[ascii_lowercase[adv_counter]] = otherbots()
-		adv_counter +=1 
+		adv_counter +=1
 	return adv_bots
 
 
-def runAuctions(ourbot, otherbots):
+def runAuctions(ourbot, otherbots,no=0):
+	if recap:
+		print("*"+str(ourbot)+"* VS "+str(otherbots))
 	adv_bots = generateBots(ourbot,otherbots)
-	
+
+	if mulrecap:
+		our_expenses = 0
+		our_utility = 0
+
 	for auctionIndex in range(nAuctions):
 		slots = generateSlots(minSlots,maxSlots)
-		adv_values, adv_sbudgets = generateAdvertisers(adv_bots.keys(),minValue,maxValue,minBudget,maxBudget)
+		adv_values, adv_sbudgets = generateAdvertisers(adv_bots.keys(),minValue,
+		maxValue,minBudget,maxBudget)
 
 		step = 0
 		history = []
@@ -88,67 +76,66 @@ def runAuctions(ourbot, otherbots):
 		while not done and step < max_step:
 			# done = True
 			for adv_name in adv_bots.keys():
-				adv_bids[adv_name] = adv_bots[adv_name].response(adv_name,adv_values[adv_name],history,slots,adv_budgets[adv_name],adv_sbudgets[adv_name])
+				adv_bids[adv_name] = adv_bots[adv_name].response(adv_name,
+				adv_values[adv_name],history,slots,adv_budgets[adv_name],
+				adv_sbudgets[adv_name])
 
-			assigned_slots, payments = budgetedVCGBalance(slots,adv_bids,adv_sbudgets,adv_budgets)
-			# assigned_slots, payments = myBalance(slots,adv_bids,adv_sbudgets,adv_budgets)
+			if isVCG:
+				assigned_slots, payments = budgetedVCGBalance(slots,adv_bids, adv_sbudgets,adv_budgets)
+			else:
+				assigned_slots, payments = myBalance(slots,adv_bids,adv_sbudgets,adv_budgets)
 
 
+			# print(assigned_slots)
 			adv_utilities = dict()
 
 			for adv in adv_values:
 				if adv in payments and payments[adv] > 0:
-					adv_utilities[adv] = adv_values[adv]- payments[adv]
+					adv_utilities[adv] = adv_values[adv] - payments[adv]
 					adv_budgets[adv] = adv_budgets[adv] - payments[adv]
 				else:
 					adv_utilities[adv] = 0
-
 			history.append(dict())
+
 			history[step]["adv_bids"] = dict(adv_bids)
 			history[step]["adv_slots"] = dict(assigned_slots)
 			history[step]["adv_pays"] = dict(payments)
 			history[step]["adv_utilities"] = dict(adv_utilities)
 			history[step]["adv_budgets"] = dict(adv_budgets)
-			#printTableRow(step,adv_budgets,adv_bids,assigned_slots,payments,adv_utilities,adv_values)
+			if verbose:
+				printTableRow(step,adv_budgets,adv_bids,assigned_slots,payments,adv_utilities,adv_values,adv_bots)
+
+			if mulrecap:
+				our_utility += adv_utilities[botname]
+				if botname in payments:
+					our_expenses += payments[botname]
 			step += 1
+		if recap:
+			printSingleAuctionRecap(history,adv_values,adv_bots,adv_sbudgets)
+
+	if mulrecap:
+		printMultipleAuctionsRecap(our_utility,our_expenses,ourbot,otherbots,no)
 
 
 
 def runAllBotsCombinations():
+	if mulrecap:
+		no = randint(1,1000)
+		print("Executing auction",no)
+		printAuctionSettings(no,number_of_bots,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)	
 	bots_types = [Bot1, Bot2,Bot3,Bot4,Bot5,Bot6,Bot7]
-	for ourbot in bots_types:
-		for otherbots in bots_types:
-			print("#")
-			runAuctions(ourbot,otherbots)
-	
+	for otherbots in bots_types:
+		for ourbot in bots_types:
+			runAuctions(ourbot,otherbots,no)
+
 
 def runSingleBotCombination():
 	ourbot = Bot1
 	otherbots = Bot1
 	runAuctions(ourbot,otherbots)
 
-runSingleBotCombination()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# print("########################################################################################################################")
+# print("########################################################################################################################")
+# print("########################################################################################################################")
+runAllBotsCombinations()
