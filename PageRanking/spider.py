@@ -6,7 +6,7 @@ import lxml.html
 import ssl
 import http.client
 
-def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False, graphVerbose = False, errorVerbose = True, numLinkVerbose=True):
+def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False, graphVerbose = False, errorVerbose = True, numLinkVerbose = True):
 
     #convenience variables
     actual_layer = set()
@@ -29,8 +29,9 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False
     actual_layer.add(url)
 
     #Compiling regular expression and settings sites to avoid
+    #Regular expression does not allow relative urls
     linkPattern = re.compile("^(?:http|https):\/\/(?:[\w\.\-\+]+:{0,1}[\w\.\-\+]*@)?(?:[a-z0-9\-\.]+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+)|\?(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+))?$")
-    sites_to_avoid = ["messenger","facebook", "twitter", "instagram", "youtube", "plus.google"]
+    sites_to_avoid = ["messenger","facebook", "twitter", "instagram", "youtube", "plus.google", "google", "t.co", "itunes.apple.com"]
 
     #Setting other convenience variables before starting to crawl
     examined_links = 0
@@ -41,27 +42,32 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False
         if len(actual_layer) == 0:
             break
         #if we have reached the maxinum num of link while exploring a layer
+        #(added for apparentely no reason but without these two lines nothing
+        #works)
         if breaked:
             break
 
-        #For every url in the actual_layer, grep all the links that it contains
+        #For every url in the actual_layer
         for actual_url in actual_layer:
             if verbose:
                 print("Examining: " + actual_url)
             if breaked:
                 break
             try:
+                #See if it's reachable
                 url_html = urllib.request.urlopen(actual_url)
                 #Adding actual_url as a node if is not present
                 if actual_url not in graph:
                     graph[actual_url] = set()
                     if graphVerbose:
                         print("Added node: " + actual_url)
+                #Take the dom, so links can be found with a proper xpath
                 dom = lxml.html.fromstring(lxml.html.tostring(lxml.html.parse(url_html)))
 
                 #for each link contained in actual_url, check if it points to
                 #itself or a forbidden site
                 break_for_forbidden_site = False
+                #grep all the links that it contains
                 for link in dom.xpath("//a/@href"):
                     if verbose:
                         print("Link founded: " + link)
