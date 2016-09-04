@@ -6,7 +6,7 @@ import lxml.html
 import ssl
 import http.client
 
-def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False, graphVerbose = False, errorVerbose = True, numLinkVerbose = True):
+def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True, graphVerbose = True, errorVerbose = True, numLinkVerbose = True):
 
     #convenience variables
     actual_layer = set()
@@ -55,14 +55,15 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False
                 break
             try:
                 #See if it's reachable
-                url_html = urllib.request.urlopen(actual_url)
+                with urllib.request.urlopen(actual_url) as connection:
+                    html = connection.read()
                 #Adding actual_url as a node if is not present
                 if actual_url not in graph:
                     graph[actual_url] = set()
                     if graphVerbose:
                         print("Added node: " + actual_url)
                 #Take the dom, so links can be found with a proper xpath
-                dom = lxml.html.fromstring(lxml.html.tostring(lxml.html.parse(url_html)))
+                dom = lxml.html.fromstring(html)
 
                 #for each link contained in actual_url, check if it points to
                 #itself or a forbidden site
@@ -90,7 +91,9 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False
                         #if it's reachable, if so we add it to the graph
                         #(both node and edge)
                         try:
-                            urllib.request.urlopen(link)
+
+                            with urllib.request.urlopen(link) as connection_to_outer_link:
+                                html_outer = connection_to_outer_link.read()
                             if link not in graph:
                                 if graphVerbose:
                                     print("Adding node: " + link)
@@ -128,10 +131,10 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False
                                 print(str(actual_url) + " caused SerialisationError, so it wasn't added");
                         except http.client.RemoteDisconnected as e:
                             if errorVerbose:
-                                print(str(actual_url) + "caused http.client.RemoteDisconnected error, so it wasn't added")
+                                print(str(actual_url) + " caused http.client.RemoteDisconnected error, so it wasn't added")
                         except:
                             if errorVerbose:
-                                print(str(actual_url) + "caused unknown error, so it wasn't added")
+                                print(str(actual_url) + " caused unknown error, so it wasn't added")
                     else:
                         if verbose:
                             print("Refusing " + link + " because did not match regexp")
@@ -149,10 +152,10 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = False
                     print(str(actual_url) + " caused SerialisationError, so it wasn't added");
             except http.client.RemoteDisconnected as e:
                 if errorVerbose:
-                    print(str(actual_url) + "caused http.client.RemoteDisconnected error, so it wasn't added")
+                    print(str(actual_url) + " caused http.client.RemoteDisconnected error, so it wasn't added")
             except:
                 if errorVerbose:
-                    print(str(actual_url) + "caused unknown error, so it wasn't added")
+                    print(str(actual_url) + " caused unknown error, so it wasn't added")
         if not breaked:
             if verbose:
                 print("-----------------------------")
