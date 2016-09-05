@@ -9,7 +9,8 @@ import time
 
 ################ PARAMETERS
 #Number of bots
-number_of_bots = 8
+number_of_bots = 7
+all_bots_list = [Bot1,Bot2,Bot3,Bot4,Bot5,Bot6,Bot7]
 
 # range of number of slots available to sell for each query
 minSlots = 3
@@ -32,6 +33,7 @@ isVCG = False
 verbose = False
 recap = False
 mulrecap = True
+tryAll = True
 
 botname = "a"
 
@@ -41,14 +43,21 @@ def generateBots(ourbot, otherbots):
 	adv_bots = dict()
 	adv_counter = 0
 
-	#instantiate our Bot
-	adv_bots[ascii_lowercase[adv_counter]] = ourbot()
-	adv_counter += 1
+	if not tryAll:
+		#instantiate our Bot
+		adv_bots[ascii_lowercase[adv_counter]] = ourbot()
+		adv_counter += 1
 
-	#instantiate all other bots
-	while adv_counter < number_of_bots:
-		adv_bots[ascii_lowercase[adv_counter]] = otherbots()
-		adv_counter +=1
+		#instantiate all other bots
+		while adv_counter < number_of_bots:
+			adv_bots[ascii_lowercase[adv_counter]] = otherbots()
+			adv_counter +=1
+	else:
+		print("DIOCANE")
+		while adv_counter < number_of_bots:
+			adv_bots[ascii_lowercase[adv_counter]] = all_bots_list[adv_counter]()
+			adv_counter +=1
+		print(adv_bots)
 	return adv_bots
 
 
@@ -117,12 +126,17 @@ def runAuctions(ourbot, otherbots,no=0):
 		printMultipleAuctionsRecap(our_utility,our_expenses,ourbot,otherbots,no)
 
 
+def runAllBotsAtOnce():
+	ourbot = Bot1
+	otherbots = Bot3
+	runAuctions(ourbot,otherbots)
+
 
 def runAllBotsCombinations():
 	if mulrecap:
 		no = randint(1,1000)
 		print("Executing auction",no)
-		printAuctionSettings(no,number_of_bots,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)	
+		printAuctionSettings(no,number_of_bots,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)
 	bots_types = [Bot1, Bot2,Bot3,Bot4,Bot5,Bot6,Bot7]
 	for otherbots in bots_types:
 		for ourbot in bots_types:
@@ -138,4 +152,4 @@ def runSingleBotCombination():
 # print("########################################################################################################################")
 # print("########################################################################################################################")
 # print("########################################################################################################################")
-runAllBotsCombinations()
+runSingleBotCombination()

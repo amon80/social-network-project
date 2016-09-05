@@ -137,7 +137,7 @@ class Bot1(Bot,metaclass=Bot1Meta):
 class Bot2(Bot,metaclass=Bot2Meta):
     """Best-response bot with competitor bursting tie-breaking rule"""
     """Submit the highest possible bid that gives the desired slot"""
-    def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
+    def response(self,name,evaluation,history,sot_ctrs,current_budget, initial_budget):
         step = len(history)
 
         #If this is the first step there is no history and no best-response is possible
@@ -145,6 +145,8 @@ class Bot2(Bot,metaclass=Bot2Meta):
         #Other possibilities would be to bid 0 or to choose a bid randomly between 0 and their value.
         if step == 0:
             return evaluation
+
+
 
         #Initialization
         last_step_slots = history[step-1]["adv_slots"]
