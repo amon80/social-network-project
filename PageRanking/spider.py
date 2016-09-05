@@ -5,6 +5,7 @@ import urllib.error
 import lxml.html
 import ssl
 import http.client
+from graph import write_graph
 
 def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True, graphVerbose = True, errorVerbose = True, numLinkVerbose = True):
 
@@ -55,7 +56,7 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True,
                 break
             try:
                 #See if it's reachable
-                with urllib.request.urlopen(actual_url) as connection:
+                with urllib.request.urlopen(actual_url, timeout = 3) as connection:
                     html = connection.read()
                 #Adding actual_url as a node if is not present
                 if actual_url not in graph:
@@ -92,7 +93,7 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True,
                         #(both node and edge)
                         try:
 
-                            with urllib.request.urlopen(link) as connection_to_outer_link:
+                            with urllib.request.urlopen(link, timeout = 3) as connection_to_outer_link:
                                 html_outer = connection_to_outer_link.read()
                             if link not in graph:
                                 if graphVerbose:
@@ -174,4 +175,4 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True,
 
 if __name__ == "__main__":
     graph = crawl(sys.argv[1], int(sys.argv[2]))
-    print(graph)
+    write_graph(graph, "graph_generated_by_" + sys.argv[3])

@@ -70,10 +70,10 @@ def document_parser(document, removeLowFrequency=True, lowFrequency=1):
 #Given a url gets the document, cleans it and parses it
 def get_parsed_document(url,verbose = True):
     try:
-        with urllib.request.urlopen(url) as connection:
+        with urllib.request.urlopen(url, timeout = 3) as connection:
             html = connection.read()
         dom = lxml.html.fromstring(html)
-        cleaner = Cleaner(javascript = True, meta = True, scripts = True, comments = True)
+        cleaner = Cleaner(style = True, links = True, javascript = True, meta = True, scripts = True, comments = True, forms = True, annoying_tags = True, frames = True)
         cleaner(dom)
         raw = dom.text_content()
         raw = strip_tags(raw)
