@@ -69,19 +69,14 @@ def document_parser(document, removeLowFrequency=True, lowFrequency=1):
 
 #Given a url gets the document, cleans it and parses it
 def get_parsed_document(url,verbose = True):
-    cleaner = Cleaner()
-    cleaner.javascript = True
-    cleaner.style = True
-    cleaner.meta = True
-    cleaner.links = True
-
     try:
-        request_object = urllib.request.urlopen(url)
-        parsed_document = lxml.html.parse(request_object)
-        cleaned_document = cleaner.clean_html(parsed_document)
-        bytes_document = lxml.html.tostring(cleaned_document)
-        stringed_document = bytes_document.decode("utf-8")
-        raw = strip_tags(stringed_document)
+        with urllib.request.urlopen(url) as connection:
+            html = connection.read()
+        dom = lxml.html.fromstring(html)
+        cleaner = Cleaner(javascript = True, meta = True, scripts = True, comments = True)
+        cleaner(dom)
+        raw = dom.text_content()
+        raw = strip_tags(raw)
         raw = raw.rstrip()
         #removing punctuation and trailers
         translator = str.maketrans({key: None for key in string.punctuation})

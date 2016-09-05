@@ -10,10 +10,8 @@ from MyException import MyException
 def generate_graph(start_link_list, n_link_to_follow = 2000, verbose = True):
 
     graph = None
-
     pid = os.getpid()
-
-    i = 0
+    i = 1
     num_links = len(start_link_list)
 
     if verbose:
@@ -26,8 +24,6 @@ def generate_graph(start_link_list, n_link_to_follow = 2000, verbose = True):
             print(str(pid) + " --- Crawled " + str(i) + " links out of " + str(num_links))
 
     write_graph(graph, 'graph_generated_by_'+str(pid))
-
-    return graph
 
 def add_random_nodes_to_total_graph(graph, n_elements = 50):
     ngroups = len(graph) // n_elements
@@ -55,8 +51,7 @@ def read_graph(input_file):
                 graph[node1] = list()
             if node2 not in graph:
                 graph[node2] = list()
-            graph[node1].append(node1)
-
+            graph[node1].append(node2)
     return graph
 
 def write_index(index, output_file):
@@ -66,29 +61,38 @@ def write_index(index, output_file):
             for query_term in index[page]:
                 num_times = index[page][query_term]
                 for i in range(num_times):
-                    if i != num_times-1:
-                        f.write(query_term + ",")
+                    f.write(query_term + ",")
             f.write("\n")
 
-def generate_pages_contents(nodes, verbose = True):
+def generate_pages_contents(nodes, log = True):
+    string_pid = str(os.getpid())
+    if log:
+        logfile = open('log-' + string_pid, "w")
     index = dict()
     toRemove = []
     current_node = 1
     total_nodes = len(nodes)
-    pid = os.getpid()
     for node in nodes:
         try:
             index[node] = get_parsed_document(node)
         except:
-            if verbose:
-                print(str(pid) + " - " + node + " is being removed from the graph")
+            if log:
+                logfile.write(str(current_node) + " is being removed from the graph\n")
+                logfile.flush()
+                os.fsync(logfile.fileno())
             toRemove.append(node)
         finally:
-            if verbose:
-                print(str(pid) + " - Processed node " + str(current_node) + " out of " + str(total_nodes))
+            if log:
+                logfile.write(" Processed node " + str(current_node) + " out of " + str(total_nodes) + "\n")
+                logfile.flush()
+                os.fsync(logfile.fileno())
             current_node += 1
-
-    return (index, toRemove)
+    write_index(index, 'index-'+string_pid)
+    if log:
+        logfile.close()
+    with open(string_pid+'-nodes_to_be_removed', 'w') as f:
+        for node in toRemove:
+            f.write(node+"\n")
 
 def find_most_frequent_term(index, doc, termsToAvoid = set()):
     most_frequent_score = 0
@@ -128,11 +132,10 @@ def create_spam_farm(graph, index, supporting_pages=100, random_pages_linking_sp
             index["target"][sorted_most_frequent_terms[i][0]] = sorted_most_frequent_terms[i][1]
 
 #parallel version, set num_cores to 1 for sequential
-def write_index_from_graph(graph_input_file, index_output_file):
+def write_index_from_graph(graph_input_file, index_output_file, num_cores = 7, verbose = True):
     graph = read_graph(graph_input_file)
     nodes = list(graph.keys())
     list_list_nodes = []
-    num_cores = 7
     for i in range(num_cores):
        list_list_nodes.append(list())
     num_nodes = len(nodes)
@@ -142,33 +145,26 @@ def write_index_from_graph(graph_input_file, index_output_file):
         for j in range(num_nodes_for_thread):
             list_list_nodes[i].append(nodes[actual_node])
             actual_node += 1
+    actual_list = 0
     while actual_node < num_nodes:
-        list_list_nodes[-1].append(nodes[actual_node])
+        list_list_nodes[actual_list].append(nodes[actual_node])
         actual_node += 1
-    p = Pool(num_cores)
-    indeces_and_nodes_to_be_removed = p.map(generate_pages_contents, list_list_nodes)
-    i = 0
-    for index_node_to_be_removed_tuple in indeces_and_nodes_to_be_removed:
-        index = index_node_to_be_removed_tuple[0]
-        toRemove = index_node_to_be_removed_tuple[1]
-        for node in toRemove:
-            del graph[node]
-            for node1 in graph.keys():
-                if node in graph[node1]:
-                    graph[node1].remove(node)
-        write_index(index, str(i)+"-"+index_output_file)
-        i += 1
-    graph_output_file = graph_input_file + 'with_no_unreachable_nodes'
-    write_graph(graph, graph_output_file)
+        actual_list += 1
+        actual_list %= num_cores
+    p = Pool(processes=num_cores)
+    for i in range(num_cores):
+        p.apply_async(generate_pages_contents, (list_list_nodes[i],))
+    p.close()
+    p.join()
+    if verbose:
+        print("Threads have finished their job")
 
-
-if __name__ == "__main__":
+def build_graph_from_crawling(start_link_list, verbose = True, num_cores = 7):
     list_links = []
     list_list_links = []
-    num_cores = 7
     for i in range(num_cores):
-       list_list_links.append(list())
-    with open('links.txt') as f:
+        list_list_links.append(list())
+    with open(start_link_list) as f:
         for line in f:
             list_links.append(line.rstrip())
     num_links = len(list_links)
@@ -177,10 +173,17 @@ if __name__ == "__main__":
     for i in range(num_cores):
         for j in range(num_links_for_thread):
             list_list_links[i].append(list_links[actual_link])
-            actual_link += 1
+    actual_link += 1
+    actual_list = 0
     while actual_link < num_links:
-        list_list_links[-1].append(list_links[actual_link])
+        list_list_links[actual_list].append(list_links[actual_link])
         actual_link += 1
+        actual_list += 1
+        actual_list %= num_cores
     p = Pool(num_cores)
-    graphs = p.map(generate_graph, list_list_links)
-    print(graphs)
+    for i in range(num_cores):
+        p.apply_async(generate_graph, (list_list_links[i],))
+    p.close()
+    p.join()
+    if verbose:
+        print("Threads have finished their job")
