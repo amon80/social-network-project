@@ -5,9 +5,29 @@ import urllib.error
 import lxml.html
 import ssl
 import http.client
+import os
 from graph import write_graph
 
-def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True, graphVerbose = True, errorVerbose = True, numLinkVerbose = True):
+def check_extension(url):
+    extension = url.split(".")[-1]
+    if extension == 'mp3':
+        return False
+    elif extension == 'jpg':
+        return False
+    elif extension == 'JPG':
+        return False
+    elif extension == 'pdf':
+        return False
+    elif extension == 'png':
+        return False
+    elif extension == 'jpeg':
+        return False
+    elif extension == 'JPEG':
+        return False
+    #add any extension you want to avoid 
+    return True
+
+def crawl(url, number_of_links_to_follow, graph = None, pid = os.getpid(), verbose = False, graphVerbose = False, errorVerbose = False, numLinkVerbose = True):
 
     #convenience variables
     actual_layer = set()
@@ -32,7 +52,7 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True,
     #Compiling regular expression and settings sites to avoid
     #Regular expression does not allow relative urls
     linkPattern = re.compile("^(?:http|https):\/\/(?:[\w\.\-\+]+:{0,1}[\w\.\-\+]*@)?(?:[a-z0-9\-\.]+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+)|\?(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+))?$")
-    sites_to_avoid = ["messenger","facebook", "twitter", "instagram", "youtube", "plus.google", "google", "t.co", "itunes.apple.com"]
+    sites_to_avoid = ["messenger","facebook", "twitter", "instagram", "youtube", "plus.google", "google", "t.co", "itunes.apple.com", "tumblr", "flickr", "linkedin", "tmblr", "pintereset", "foursquare", "vimeo"]
 
     #Setting other convenience variables before starting to crawl
     examined_links = 0
@@ -73,6 +93,9 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = 0, verbose = True,
                 for link in dom.xpath("//a/@href"):
                     if verbose:
                         print("Link founded: " + link)
+                    extension = link.split(".")[-1]
+                    if not check_extension(extension):
+                        continue
                     if linkPattern.match(link):
                         if actual_url in link:
                             if verbose:
