@@ -34,7 +34,7 @@ def add_random_nodes_to_total_graph(graph, n_elements = 50):
             random2 = random.randint(j*n_elements, (j+1)*n_elements)
             graph[nodes[random1]].add(nodes[random2])
 
-def generate_pages_contents(nodes, log = True):
+def generate_pages_contents(nodes, graph_name, log = True):
     string_pid = str(os.getpid())
     if log:
         logfile = open('log-' + string_pid, "w")
@@ -57,12 +57,13 @@ def generate_pages_contents(nodes, log = True):
                 logfile.flush()
                 os.fsync(logfile.fileno())
             current_node += 1
-    write_index(index, 'index-'+string_pid)
+    # write_index(index, 'index-'+string_pid)
     if log:
         logfile.close()
-    with open(string_pid+'-nodes_to_be_removed', 'w') as f:
+    with open(graph_name+'_nodes_to_be_removed', 'w') as f:
         for node in toRemove:
             f.write(node+"\n")
+    return index
 
 def find_most_frequent_term(index, doc, termsToAvoid = set()):
     most_frequent_score = 0

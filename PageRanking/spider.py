@@ -114,72 +114,37 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = os.getpid(), verbo
                         #Now that we have verified that this link is good, see
                         #if it's reachable, if so we add it to the graph
                         #(both node and edge)
-                        try:
-
-                            with urllib.request.urlopen(link, timeout = 3) as connection_to_outer_link:
-                                html_outer = connection_to_outer_link.read()
-                            if link not in graph:
-                                if graphVerbose:
-                                    print("Adding node: " + link)
-                                graph[link] = set()
-                            graph[actual_url].add(link)
+                        with urllib.request.urlopen(link, timeout = 3) as connection_to_outer_link:
+                            html_outer = connection_to_outer_link.read()
+                        if link not in graph:
                             if graphVerbose:
-                                print("Adding edge from " + actual_url + " to " + link)
-                            if(link not in crawledLinks):
-                                if verbose:
-                                    print("Adding " + link + " ")
-                                crawledLinks.add(link)
-                                next_layer.add(link)
-                                examined_links += 1
+                                print("Adding node: " + link)
+                            graph[link] = set()
+                        graph[actual_url].add(link)
+                        if graphVerbose:
+                            print("Adding edge from " + actual_url + " to " + link)
+                        if(link not in crawledLinks):
+                            if verbose:
+                                print("Adding " + link + " ")
+                            crawledLinks.add(link)
+                            next_layer.add(link)
+                            examined_links += 1
+                            if numLinkVerbose:
+                                print(str(pid) + " --- Link followed until now " + str(examined_links))
+                            if examined_links >= number_of_links_to_follow:
                                 if numLinkVerbose:
-                                    print(str(pid) + " --- Link followed until now " + str(examined_links))
-                                if examined_links >= number_of_links_to_follow:
-                                    if numLinkVerbose:
-                                        print(str(pid) + " --- Reached " + str(number_of_links_to_follow))
-                                    breaked = True
-                                    break
-                            else:
-                                if verbose:
-                                    print("Refusing " + link + " because it was already added")
-                        except urllib.error.HTTPError as e:
-                            if errorVerbose:
-                                print(str(link) + " caused " +  str(e) + " so it wasn't added")
-                        except urllib.error.URLError as e:
-                            if errorVerbose:
-                                print(str(link) + " caused " + str(e) + " so it wasn't added")
-                        except ssl.CertificateError as e:
-                            if errorVerbose:
-                                print(str(link) + " caused " + str(e) + " so it wasn't added")
-                        except lxml.etree.SerialisationError as e:
-                            if errorVerbose:
-                                print(str(actual_url) + " caused SerialisationError, so it wasn't added");
-                        except http.client.RemoteDisconnected as e:
-                            if errorVerbose:
-                                print(str(actual_url) + " caused http.client.RemoteDisconnected error, so it wasn't added")
-                        except:
-                            if errorVerbose:
-                                print(str(actual_url) + " caused unknown error, so it wasn't added")
+                                    print(str(pid) + " --- Reached " + str(number_of_links_to_follow))
+                                breaked = True
+                                break
+                        else:
+                            if verbose:
+                                print("Refusing " + link + " because it was already added")
                     else:
                         if verbose:
                             print("Refusing " + link + " because did not match regexp")
-            except urllib.error.HTTPError as e:
-                if errorVerbose:
-                    print("Start link " + str(actual_url) + " caused " +  str(e) + " so it wasn't added")
-            except urllib.error.URLError as e:
-                if errorVerbose:
-                    print("Start link " + str(actual_url) + " caused " +  str(e) + " so it wasn't added")
-            except ssl.CertificateError as e:
-                if errorVerbose:
-                    print(str(actual_url) + " caused " + str(e) + " so it wasn't added")
-            except lxml.etree.SerialisationError as e:
-                if errorVerbose:
-                    print(str(actual_url) + " caused SerialisationError, so it wasn't added");
-            except http.client.RemoteDisconnected as e:
-                if errorVerbose:
-                    print(str(actual_url) + " caused http.client.RemoteDisconnected error, so it wasn't added")
             except:
                 if errorVerbose:
-                    print(str(actual_url) + " caused unknown error, so it wasn't added")
+                    print("Something went wrong when examining " + str(actual_url) + " or " + link + " but don't panic too much.")
         if not breaked:
             if verbose:
                 print("-----------------------------")

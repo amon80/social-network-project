@@ -1,3 +1,0 @@
-nome_adv1 prova,test,prova esame,esame,appello,appello esame
-nome_adv2 prova,esempio,caso semplice,evidenza
-nome_adv3 esempio test,esempio esame,esempio prova,esame prova

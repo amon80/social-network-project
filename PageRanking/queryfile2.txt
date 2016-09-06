@@ -1,7 +1,0 @@
-doc1 prova,test,prova esame,esame,appello,appello esame, ciaone, pippo, paperino, pluto, vasco, rossi, blasco, comandante, gigidag, ernesto, anestepone, platone, socrate, homecoming, vagone merci, compilatori, score, partita, calcio
-doc2 prova,esempio,caso semplice,evidenza
-doc3 esempio test,esempio esame,esempio prova,esame prova
-doc4 prova, ciaone, vasco
-doc5 compilatori, ernesto, platone, vasco
-doc6 vasco, rossi, blasco, prova
-doc7 pippo, paperino, pluto, prova
