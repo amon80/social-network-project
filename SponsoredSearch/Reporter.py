@@ -1,4 +1,15 @@
 import csv
+import constants
+
+def reportStep(step,max_step,stepHistory):
+	print(stepHistory[constants.BUDGETS_KEY])
+
+def reportAuction():
+	print()
+
+
+
+
 
 outputRecap = True
 
