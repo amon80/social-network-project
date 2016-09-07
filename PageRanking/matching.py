@@ -23,11 +23,12 @@ import sys
 #Creation of inverted index
 #We create an inverted index with an entry for every word of a document or for any word on which advertisers requested to appear
 #We also create the non-inverted index, so that it's easy to compute frequencies
-def create_indeces(databasefile):
+def create_indeces(databasefile, verbose = False):
     inverted_index = dict()
     index = dict()
 
     with open(databasefile) as infile:
+        line_no = 1
         
         for line in infile:
             line = line.rstrip()
@@ -35,22 +36,26 @@ def create_indeces(databasefile):
             name = name_list[0]
             if name not in index.keys():
                 index[name] = dict()
-            queries = name_list[1].split(',')
-            
-            for i in range(len(queries)):
-                
-                query_words = queries[i].split()
-                
-                for word in query_words:
-                    if word not in index[name]:
-                        index[name][word] = 0
-                    if word not in inverted_index.keys():
-                        inverted_index[word]=dict() 
-                    if name not in inverted_index[word].keys():
-                        inverted_index[word][name] = 0 
+            try:
+                queries = name_list[1].split(',')
+                for i in range(len(queries)):
+                    query_words = queries[i].split(',')
                     
-                    index[name][word] += 1
-                    inverted_index[word][name] += 1
+                    for word in query_words:
+                        if word not in index[name]:
+                            index[name][word] = 0
+                        if word not in inverted_index.keys():
+                            inverted_index[word]=dict() 
+                        if name not in inverted_index[word].keys():
+                            inverted_index[word][name] = 0 
+                        
+                        index[name][word] += 1
+                        inverted_index[word][name] += 1
+            except IndexError:
+                if verbose:
+                    print("No spaces or no query on " + str(line_no))
+            finally:
+                line_no += 1
     return (index, inverted_index)
     
 #First variant, using only inverted_index
