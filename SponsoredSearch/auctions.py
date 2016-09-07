@@ -75,7 +75,7 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 	psi = computeWeights(bids,current_budgets,starting_budgets)
 
 	# print(bids)
-	# print(slot_ctrs)
+
 	sorted_slots = sorted(slot_ctrs.keys(), key = slot_ctrs.__getitem__, reverse = True)
 	# print(sorted_slots)
 	sorted_advertisers = sorted(psi.keys(), key = psi.__getitem__, reverse = True)

@@ -1,5 +1,28 @@
 import csv
 
+outputRecap = True
+
+def printAuctionRevenue(history,bots):
+	bot_payments = dict()
+	bot_utilities = dict()
+	auction_revenue = 0
+	auction_utilities = 0
+	for bot in bots.keys():
+		bot_payments[bot] = 0
+		bot_utilities[bot] = 0
+
+	for step in range(len(history)):
+		for payingbot in history[step]["adv_pays"]:
+			auction_revenue += history[step]["adv_pays"][payingbot]
+			auction_utilities += history[step]["adv_utilities"][payingbot]
+			bot_utilities[payingbot] += history[step]["adv_utilities"][payingbot]
+			bot_payments[payingbot] += history[step]["adv_pays"][payingbot]
+
+	print("User\tExpense\t\tUtility")
+	for bot in bot_payments.keys():
+		print(bot,"\t%.2f" % bot_payments[bot],"\t\t%.2f" % bot_utilities[bot])
+
+	print("TOT\t%.2f" % auction_revenue,"\t\t%.2f" % auction_utilities)
 
 def printAuctionSettings(no,number_of_bots,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG):
 	with open('Reports/'+str(no)+'_settings.txt','a') as txtfile:
@@ -17,11 +40,14 @@ def printAuctionSettings(no,number_of_bots,minSlots,maxSlots,minValue,maxValue,m
 		else:
 			txtfile.write("Auction type\tFirst Price Auction\n")
 
-def printMultipleAuctionsRecap(our_utility,our_expenses,ourbot, otherbots,no):
-	print()
-	print("Using",ourbot,"against",otherbots)
-	print("We spent %.2f" % our_expenses)
-	print("For a utility of %.2f" % our_utility)
+def printMultipleAuctionsRecap(our_utility,our_expenses,auction_revenue,auction_utility,ourbot, otherbots,no):
+	if outputRecap:
+		print()
+		print("Using",ourbot,"against",otherbots)
+		print("We spent %.2f" % our_expenses)
+		print("For a utility of %.2f" % our_utility)
+		print("Total Auction Revenue was of %.2f" % auction_revenue)
+		print("Total Auction Utility was of %.2f" % auction_utility)
 	with open('Reports/'+str(no)+'_report.csv','a') as csvfile:
 		fieldnames = ["other_bots","our_bot","expenses","utilities"]
 		writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
@@ -29,6 +55,14 @@ def printMultipleAuctionsRecap(our_utility,our_expenses,ourbot, otherbots,no):
 		# writer.writeheader()
 		writer.writerow({"other_bots":str(otherbots),"our_bot":str(ourbot),
 						"expenses":our_expenses,"utilities":our_utility})
+
+	with open('Reports/'+str(no)+'_revenue.csv','a') as csvfile:
+		fieldnames = ["other_bots","our_bot","revenues","utilities"]
+		writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
+
+		# writer.writeheader()
+		writer.writerow({"other_bots":str(otherbots),"our_bot":str(ourbot),
+						"revenues":auction_revenue,"utilities":auction_utility})
 
 
 def printSingleAuctionRecap(history,values,bots,sbudgets):

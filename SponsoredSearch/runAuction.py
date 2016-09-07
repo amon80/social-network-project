@@ -25,50 +25,42 @@ minBudget = 100
 maxBudget = 200
 
 #number of random executions
-nAuctions = 1000
+nAuctions = 100
 max_step = 100
 
-isVCG = False
+isVCG = True
 
 verbose = False
 recap = False
 mulrecap = True
-tryAll = True
+tryAll = False
 
 botname = "a"
 
 no = 0
 
-def generateBots(ourbot, otherbots):
+# def generateBots(ourbot, otherbots):
+def generateBots(bots_list):
+	number_of_bots = len(bots_list)
 	adv_bots = dict()
-	adv_counter = 0
 
-	if not tryAll:
-		#instantiate our Bot
-		adv_bots[ascii_lowercase[adv_counter]] = ourbot()
-		adv_counter += 1
-
-		#instantiate all other bots
-		while adv_counter < number_of_bots:
-			adv_bots[ascii_lowercase[adv_counter]] = otherbots()
-			adv_counter +=1
-	else:
-		print("DIOCANE")
-		while adv_counter < number_of_bots:
-			adv_bots[ascii_lowercase[adv_counter]] = all_bots_list[adv_counter]()
-			adv_counter +=1
-		print(adv_bots)
+	for adv_counter in range(len(bots_list)):
+		adv_bots[ascii_lowercase[adv_counter]] = bots_list[adv_counter]()
 	return adv_bots
 
 
-def runAuctions(ourbot, otherbots,no=0):
+# def runAuctions(ourbot, otherbots,no=0):
+def runAuctions(bots_list,no=0):
 	if recap:
 		print("*"+str(ourbot)+"* VS "+str(otherbots))
-	adv_bots = generateBots(ourbot,otherbots)
+	adv_bots = generateBots(bots_list)
+	# adv_bots = generateBots(ourbot,otherbots)
 
 	if mulrecap:
 		our_expenses = 0
 		our_utility = 0
+		auction_revenue = 0
+		auction_utility = 0
 
 	for auctionIndex in range(nAuctions):
 		slots = generateSlots(minSlots,maxSlots)
@@ -118,23 +110,36 @@ def runAuctions(ourbot, otherbots,no=0):
 				our_utility += adv_utilities[botname]
 				if botname in payments:
 					our_expenses += payments[botname]
+				for payment in payments:
+					auction_revenue += payments[payment]
+				for au in adv_utilities:
+					auction_utility += adv_utilities[au]
 			step += 1
 		if recap:
 			printSingleAuctionRecap(history,adv_values,adv_bots,adv_sbudgets)
 
+
 	if mulrecap:
-		printMultipleAuctionsRecap(our_utility,our_expenses,ourbot,otherbots,no)
+		printMultipleAuctionsRecap(our_utility,our_expenses,auction_revenue,auction_utility,bots_list[0],bots_list[1:len(bots_list)-1],no)
+
+
+def generateBotList(us,them,howmany):
+	bl = []
+	bl.append(us)
+	for hm in range(howmany):
+		bl.append(them)
+	print(bl)
+	return bl
 
 
 def runAllBotsAtOnce():
-	ourbot = Bot1
-	otherbots = Bot3
-	runAuctions(ourbot,otherbots)
+	number_of_bots = 7
+	runAuctions([Bot1,Bot2,Bot3,Bot4,Bot5,Bot6,Bot7])
 
 
 def runAllBotsCombinations():
+	no = randint(1,1000)
 	if mulrecap:
-		no = randint(1,1000)
 		print("Executing auction",no)
 		printAuctionSettings(no,number_of_bots,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)
 	bots_types = [Bot1, Bot2,Bot3,Bot4,Bot5,Bot6,Bot7]
@@ -146,10 +151,8 @@ def runAllBotsCombinations():
 def runSingleBotCombination():
 	ourbot = Bot1
 	otherbots = Bot1
-	runAuctions(ourbot,otherbots)
+	num_of_bots = 7
+	runAuctions(generateBotList(ourbot,otherbots,num_of_bots))
 
 
-# print("########################################################################################################################")
-# print("########################################################################################################################")
-# print("########################################################################################################################")
 runSingleBotCombination()
