@@ -19,7 +19,7 @@
 ###BEST MATCH###
 
 import sys
-from index import create_indeces
+from index import read_index
 
 #Creation of inverted index
 #We create an inverted index with an entry for every word of a document or for any word on which advertisers requested to appear
@@ -176,7 +176,7 @@ def best_match3(query, sorted_inverted_index,index):
 
 
 if __name__ == "__main__":
-    (index, inverted_index) = create_indeces(sys.argv[1])
+    (index, inverted_index) = read_index(sys.argv[1])
     
     print(index)
 

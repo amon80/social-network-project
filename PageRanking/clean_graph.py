@@ -1,5 +1,5 @@
 from graph import read_graph, write_graph
-from index import create_indeces, write_index
+from index import read_index, write_index
 import sys
 
 def clean_graph(graph_input_file, nodes_to_be_removed_file):
@@ -16,7 +16,7 @@ def clean_graph(graph_input_file, nodes_to_be_removed_file):
 
 def clean_graph_and_index(graph_input_file, index_input_file):
     graph = read_graph(graph_input_file)
-    (index, inverted_index) = create_indeces(index_input_file)
+    (index, inverted_index) = read_index(index_input_file)
     page_to_remove = []
     for page in index.keys():
         if page not in graph.keys():

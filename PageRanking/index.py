@@ -1,4 +1,4 @@
-def create_indeces(databasefile, verbose = False):
+def read_index(databasefile, verbose = False):
     inverted_index = dict()
     index = dict()
 

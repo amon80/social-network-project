@@ -72,18 +72,6 @@ def read_normalization_map(graph_normalized_mapping_file):
             inverse_normalization_map[index] = page
     return (normalization_map, inverse_normalization_map)
     
-
-def clean_graph(graph_input_file, nodes_to_be_removed_file):
-    graph = read_graph(graph_input_file)
-    with open(nodes_to_be_removed_file, 'r') as f:
-        for node_to_remove in f:
-            node_to_remove = node_to_remove.rstrip()
-            del graph[node_to_remove]
-            for node in graph:
-                if node_to_remove in graph[node]:
-                    graph[node].remove(node_to_remove)
-    write_graph(graph, graph_input_file+'_with_nodes_removed')
-
 def count_edges(graph):
     counted_edges = 0
     for node in graph.keys():
