@@ -96,10 +96,22 @@ def count_edges(graph):
         counted_edges += len(graph[node])
     return counted_edges
 
+#Works only when the nodes are integers starting from zero
 def convert_graph(graph):
-    return False
-    # adj_
-    # converted_graph = []
+    converted_graph = list()
+    for i in range(len(graph)):
+        converted_graph.append(list())
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            converted_graph[i].append(0)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if i in graph[j]:
+                converted_graph[i][j] = 1/len(graph[j]) 
+    return converted_graph
 
 if __name__ == "__main__":
-    normalize_graph(sys.argv[1], print_mapping = True)
+    graph = read_integer_graph('toy_graph')
+    converted_graph = convert_graph(graph)
+    print(graph)
+    print(converted_graph)
