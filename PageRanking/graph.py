@@ -97,21 +97,45 @@ def count_edges(graph):
     return counted_edges
 
 #Works only when the nodes are integers starting from zero
-def convert_graph(graph):
-    converted_graph = list()
+def get_transition_matrix(graph):
+    transition_matrix = list()
     for i in range(len(graph)):
-        converted_graph.append(list())
+        transition_matrix.append(list())
     for i in range(len(graph)):
         for j in range(len(graph)):
-            converted_graph[i].append(0)
+            transition_matrix[i].append(0)
     for i in range(len(graph)):
         for j in range(len(graph)):
             if i in graph[j]:
-                converted_graph[i][j] = 1/len(graph[j]) 
-    return converted_graph
+                transition_matrix[i][j] = 1/len(graph[j]) 
+    return transition_matrix
+
+def get_indegrees(graph):
+    in_degrees = dict()
+    for node in graph:
+        in_degrees[node] = 0
+        for node1 in graph:
+            if node in graph[node1]:
+                in_degrees[node] += 1
+    return in_degrees
+
+#Works only when the nodes are integers starting from zero
+def get_inverse_transition_matrix(graph):
+    inv_transition_matrix = list()
+    in_degrees = get_indegrees(graph)
+    for i in range(len(graph)):
+        inv_transition_matrix .append(list())
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            inv_transition_matrix [i].append(0)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if j in graph[i]:
+                inv_transition_matrix [i][j] = 1/in_degrees[j]
+    return inv_transition_matrix 
 
 if __name__ == "__main__":
     graph = read_integer_graph('toy_graph')
-    converted_graph = convert_graph(graph)
+    inv_transition_matrix = get_inverse_transition_matrix(graph)
     print(graph)
-    print(converted_graph)
+    print(inv_transition_matrix)
