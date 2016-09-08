@@ -127,24 +127,23 @@ def read_trusted_pages(trusted_pages_list):
 def read_rankings(rankfile):
     rankings = dict()
     with open(rankfile, 'r') as f:
-        for line in file:
+        for line in f:
             line = line.rstrip()
 
             tokens = line.split()
             page = tokens[0]
-            rank = tokens[1]
+            rank = float(tokens[1])
             rankings[page] = rank
     return rankings
-    
 
 def write_rankings(rankings, rankfile):
     with open(rankfile, 'w') as f:
         for page in rankings.keys():
             f.write(str(page) + " " + str(rankings[page]) + "\n")
 
-from graph import read_graph
 
 if __name__ == "__main__":
+    from graph import read_graph
     graph = read_graph('final_graph.dataset')
     prTime, prRank = pageRank(graph)
     trusted_pages = read_trusted_pages('trusted_pages')
