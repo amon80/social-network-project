@@ -1,6 +1,18 @@
 
 # As seen during the course
 # Pagerank with teleport
+from numpy import add,dot,multiply
+from math import sqrt
+
+def matricial_pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
+    nodes = graph.keys()
+    n = len(nodes)
+    done = False
+    time = 0
+
+
+
+
 def pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
     nodes = graph.keys()
     n = len(nodes)
@@ -65,7 +77,12 @@ def trustRank(graph, trusted_pages, s=0.85, step=1000, confidence=0, verbose = T
     trusted_pages_set = set(trusted_pages)
 
     for node in nodes:
-        rank[node] = float(1)/n
+        if node not in trusted_pages_set:
+            # Each node receives a share of 1/n with probability 1-s
+            rank[node] = float(1)/n 
+
+    for node in trusted_pages:
+        rank[node] = float(1)
 
     tmp = dict()
     done = False
@@ -75,13 +92,12 @@ def trustRank(graph, trusted_pages, s=0.85, step=1000, confidence=0, verbose = T
         if verbose:
             print(time)
 
-        for node in trusted_pages:
-            tmp[node] = float(1)/2
+        # for node in trusted_pages:
+        #     tmp[node] = float(1)/2
 
         for node in nodes:
-            if node not in trusted_pages_set:
-                # Each node receives a share of 1/n with probability 1-s
-                tmp[node] = float(1-s)/n 
+            # Each node receives a share of 1/n with probability 1-s
+            tmp[node] = float(1-s)/n 
 
         for node in nodes:
             for neighbour in graph[node]:
