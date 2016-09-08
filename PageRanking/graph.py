@@ -57,7 +57,7 @@ def read_integer_graph(input_file, verbose = True):
 def normalize_graph(graph, print_mapping = True):
     graph_normalized = dict()
     index_node_mapping = dict()
-    index = 1
+    index = 0
     for node in graph.keys():
         index_node_mapping[node] = index
         graph_normalized[index] = set()
