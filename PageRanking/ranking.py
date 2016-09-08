@@ -1,17 +1,39 @@
-
 # As seen during the course
 # Pagerank with teleport
 from numpy import add,dot,multiply
 from math import sqrt
 
-def matricial_pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
-    nodes = graph.keys()
-    n = len(nodes)
+#matricial_pagerank works only on normlized graph given as transition matrix
+#for inverse pagerank give the function the inverse transition matrix
+#if given, tax must be a vector that sums to one(biased pagerank)
+def matricial_pageRank(transition_matrix, s=0.85, step=1000, confidence=0, tax = None, verbose = True):
+    n = len(transition_matrix)
+    nodes = range(n)
     done = False
     time = 0
 
+    rank = []
+    if tax == None:
+        tax = []
+        for i in nodes:
+            tax.append(1/n)
+    for i in nodes:
+        rank.append(1/n)
 
+    while not done and time < step:
+        time += 1 
+        if verbose:
+            print(time)
+        tmp = add(dot(multiply(s,transition_matrix), rank), multiply((1-s), tax))
+        diff = 0
+        tmp = tmp.A1
+        for i in nodes:
+            diff += abs(rank[i]-tmp[i])
+            rank[i] = tmp[i]
 
+        if diff <= confidence:
+            done = True
+    return time, rank
 
 def pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
     nodes = graph.keys()
