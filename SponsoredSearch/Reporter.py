@@ -1,12 +1,41 @@
 import csv
 import constants
 
-def reportStep(step,max_step,stepHistory):
-	print(stepHistory[constants.BUDGETS_KEY])
 
-def reportAuction():
-	print()
+class Reporter(object):
+	# bots_types = []
+	bots = []
+	executionNumber = -1
+	slots = dict()
 
+	values = dict()
+	starting_budgets = dict()
+
+	def reportStep(self,step,max_step,stepHistory):
+		print("_______________________________________________________________",step,"/",max_step)
+		print("Name\tBot\tValue\tBid\tUtility\tSlot\tCtr\tBudget")
+		for bot in self.bots:
+			if bot in stepHistory[constants.WINNERS_KEY]:
+				slot = stepHistory[constants.WINNERS_KEY][bot]
+				slot_ctr = ("%.2f"% self.slots[slot])
+			else:
+				slot = ""
+				slot_ctr = ""
+			print(bot,"\t",self.bots[bot],"\t%.2f" % self.values[bot],
+					"\t%.2f" % stepHistory[constants.BIDS_KEY][bot],
+					"\t%.2f" % stepHistory[constants.UTILITIES_KEY][bot],
+					"\t",slot,
+					"\t", slot_ctr,
+					"\t%.0f/%.0f" % (stepHistory[constants.BUDGETS_KEY][bot],self.starting_budgets[bot]),)
+
+
+	def reportAuction(self,history):
+		for step in range(len(history)):
+			print(history[step][constants.UTILITIES_KEY][constants.OUR_BOT_NAME])
+
+	def reportAuctions(self,our_expenses,our_utility,auctions_revenue,auctions_utility):
+		print("We spent %.2f" % our_expenses,"and gained %.2f" % our_utility)
+		print("The auctions had revenue %.2f" % auctions_revenue,"and gained %.2f " %auctions_utility)
 
 
 
