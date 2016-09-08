@@ -1,7 +1,7 @@
 import random
 
 #n_elements and n_couples adapted to our graph
-def add_random_nodes_to_total_graph(graph, n_elements = 878, num_couples = 4):
+def add_random_edges_to_total_graph(graph, n_elements = 878, num_couples = 4):
     ngroups = len(graph.keys()) // n_elements
     nodes = list(graph.keys())
     for i in range(ngroups-1):
@@ -34,6 +34,7 @@ def create_spam_farm(graph, index, supporting_pages = 35, random_pages_linking_s
     #Creating supporting pages and linking two way with target page
     for i in range(supporting_pages):
         spam_page_name = "spam"+str(i)
+        index[spam_page_name] = dict()
         graph[spam_page_name] = set()
         graph[spam_page_name].add("target")
         graph["target"].add(spam_page_name)
