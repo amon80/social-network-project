@@ -1,6 +1,5 @@
 from graph import read_graph, write_graph
-from generate_database import write_index
-from matching import create_indeces
+from index import create_indeces, write_index
 import sys
 
 def clean_graph(graph_input_file, nodes_to_be_removed_file):
