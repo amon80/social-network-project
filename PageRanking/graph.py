@@ -79,5 +79,11 @@ def clean_graph(graph_input_file, nodes_to_be_removed_file):
                     graph[node].remove(node_to_remove)
     write_graph(graph, graph_input_file+'_with_nodes_removed')
 
+def count_edges(graph):
+    counted_edges = 0
+    for node in graph.keys():
+        counted_edges += len(graph[node])
+    return counted_edges
+
 if __name__ == "__main__":
     normalize_graph(sys.argv[1], print_mapping = True)
