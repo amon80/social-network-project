@@ -38,11 +38,11 @@ def read_index(databasefile, verbose = False):
 def write_index(index, output_file):
     with open(output_file, "w") as f:
         for page in index:
-            f.write(page + " ")
+            f.write(str(page) + " ")
             for query_term in index[page]:
                 num_times = index[page][query_term]
                 for i in range(num_times):
-                    f.write(query_term + ",")
+                    f.write(str(query_term) + ",")
             f.write("\n")
 
 def normalize_index(index, normalization_map):
