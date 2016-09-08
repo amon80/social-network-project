@@ -1,14 +1,18 @@
 import random
 
 def add_random_nodes_to_total_graph(graph, n_elements = 2000, num_couples = 10):
-    ngroups = len(graph) // n_elements
+    ngroups = len(graph.keys()) // n_elements
     nodes = list(graph.keys())
     for i in range(ngroups-1):
         for j in range(i+1, ngroups):
             for k in range(num_couples):
-                random1 = random.randint(i*n_elements, (i+1)*n_elements)
-                random2 = random.randint(j*n_elements, (j+1)*n_elements)
-                graph[nodes[random1]].add(nodes[random2])
+                added = False
+                while not added:
+                    random1 = random.randint(i*n_elements, (i+1)*n_elements)
+                    random2 = random.randint(j*n_elements, (j+1)*n_elements)
+                    if nodes[random2] not in graph[nodes[random1]]:
+                        graph[nodes[random1]].add(nodes[random2])
+                        added = True
 
 def find_most_frequent_term(index, doc, termsToAvoid = set()):
     most_frequent_score = 0
@@ -23,19 +27,24 @@ def find_most_frequent_term(index, doc, termsToAvoid = set()):
 def create_spam_farm(graph, index, supporting_pages=100, random_pages_linking_spam=30):
     nodes_without_spam = list(graph.keys())
     num_nodes_without_spam = len(nodes_without_spam)
+    #Creating target page
     graph["target"] = set()
     index["target"] = dict()
+    #Creating supporting pages and linking two way with target page
     for i in range(supporting_pages):
         spam_page_name = "spam"+str(i)
         graph[spam_page_name] = set()
         graph[spam_page_name].add("target")
         graph["target"].add(spam_page_name)
+    #Adding links from random_pages_linking_spam to target page
     for i in range(random_pages_linking_spam):
         r = random.randint(0, num_nodes_without_spam-1)
         graph[nodes_without_spam[r]].add("target")
+    #Builing target paged index
     most_frequent_terms_with_frequencies = list()
     most_frequent_terms = set()
     for node in nodes_without_spam:
+        #smaller index means most frequent term or less frequent?
         result = find_most_frequent_term(index, node, most_frequent_terms)
         if result[1] == 0:
             continue
