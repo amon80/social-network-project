@@ -31,6 +31,7 @@ def balance(slot_ctrs, bids, starting_budgets, current_budgets, query):
 
 def myBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 	query_winners = dict()
+	rev_query_winners = dict()
 	query_pay = dict()
 
 	psi = dict()
@@ -48,7 +49,8 @@ def myBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 	for i in range(min(len(sorted_slots),len(sorted_advertisers))):
 		query_winners[sorted_slots[i]] = sorted_advertisers[i]
 		query_pay[sorted_advertisers[i]] = bids[sorted_advertisers[i]] #Here, we use first price auction, winner pays exactly their bid
-	return query_winners, query_pay
+		rev_query_winners[sorted_advertisers[i]] = sorted_slots[i]
+	return query_winners, rev_query_winners,query_pay
 
 
 
@@ -98,6 +100,7 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 		utility_with_me = 0
 		# How much did the other winners win when I am competing???
 		if utilityDebug:
+			print("**UTILITY COMPUTATION**")
 			print ("Utility with",winner)
 		for other_winner in rev_query_winners.keys():
 			if other_winner != winner:
@@ -107,15 +110,15 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 		if utilityDebug:
 			print("=",utility_with_me)
 
-		alternative_bids = dict(bids)
-		alternative_starting_budgets = dict(starting_budgets)
-		alternative_current_budgets = dict(current_budgets)
-		del alternative_bids[winner]
-		del alternative_current_budgets[winner]
-		del alternative_starting_budgets[winner]
-		alternative_psi = computeWeights(alternative_bids,alternative_current_budgets,alternative_starting_budgets)
+		alt_bids = dict(bids)
+		alt_starting_budgets = dict(starting_budgets)
+		alt_current_budgets = dict(current_budgets)
+		del alt_bids[winner]
+		del alt_current_budgets[winner]
+		del alt_starting_budgets[winner]
+		alt_psi = computeWeights(alt_bids,alt_current_budgets,alt_starting_budgets)
 
-		sorted_alt_advertisers = sorted(alternative_psi.keys(), key = alternative_psi.__getitem__, reverse = True)
+		sorted_alt_advertisers = sorted(alt_psi.keys(), key = alt_psi.__getitem__, reverse = True)
 
 
 
@@ -123,7 +126,7 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 		rev_query_alt_winners = dict()
 
 
-		for i in range(nWinners-1):
+		for i in range(nWinners):
 			query_alt_winners[sorted_slots[i]] = sorted_alt_advertisers[i]
 			rev_query_alt_winners[sorted_alt_advertisers[i]] = sorted_slots[i]
 
@@ -141,6 +144,7 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 			print("=",utility_without_me)
 			print(">>Without",winner,"the winners are",query_alt_winners.values())
 			print("And the harm is ",harm)
+			print("**********************")
 
 
 		query_pay[winner] = harm

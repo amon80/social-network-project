@@ -52,7 +52,8 @@ def runAuctions(bots_list):
     bots = generateBots(bots_list)
 
     #Update Reporter
-    rep.bots = bots
+    rep.bots = list(bots.keys())
+    rep.bots_types = bots
 
     #Variables
     our_expenses = 0
@@ -95,11 +96,12 @@ def runAuctions(bots_list):
                 assigned_slots, assigned_advs, payments = myBalance(slots,bids,starting_budgets,budgets)
 
 
+
             # Update bots utilities and budgets
             utilities = dict()
             for bot in bots:
                 if bot in payments and payments[bot] > 0:
-                    utilities[bot] = values[bot] - payments[bot]
+                    utilities[bot] = (values[bot]*slots[assigned_advs[bot]] - payments[bot])
                     budgets[bot] = budgets[bot] - payments[bot]
                     auctions_revenue += payments[bot]
                 else:
@@ -112,7 +114,7 @@ def runAuctions(bots_list):
             stepHistory = dict()
             stepHistory[constants.BIDS_KEY] = dict(bids)
             stepHistory[constants.SLOTS_KEY] = dict(assigned_slots)
-            stepHistory[constants.PAYMENS_KEY] = dict(payments)
+            stepHistory[constants.PAYMENTS_KEY] = dict(payments)
             stepHistory[constants.UTILITIES_KEY] = dict(utilities)
             stepHistory[constants.BUDGETS_KEY] = dict(budgets)
             stepHistory[constants.WINNERS_KEY] = dict(assigned_advs)
@@ -124,7 +126,7 @@ def runAuctions(bots_list):
 
             history.append(stepHistory)
             if mustReportStep:
-                rep.reportStep(step,max_step,stepHistory)
+                rep.reportStep(step,max_step,stepHistory,our_expenses,our_utility)
             step += 1
         if mustReportAuction:
             rep.reportAuction(history)
@@ -179,6 +181,7 @@ def runMultipleBotCombinationsAuctions():
 no = randint(1,1000)
 rep = Reporter()
 rep.executionNumber = no
+print("Executing ",no)
 runSingleBotCombinationAuction()
 # runMultipleBotCombinationsAuctions()
 # runAllBotsAuction()

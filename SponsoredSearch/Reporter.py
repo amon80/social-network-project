@@ -3,30 +3,71 @@ import constants
 
 
 class Reporter(object):
-	# bots_types = []
+
 	bots = []
+	bots_types = []
 	executionNumber = -1
 	slots = dict()
 
 	values = dict()
 	starting_budgets = dict()
 
-	def reportStep(self,step,max_step,stepHistory):
-		print("_______________________________________________________________",step,"/",max_step)
-		print("Name\tBot\tValue\tBid\tUtility\tSlot\tCtr\tBudget")
-		for bot in self.bots:
-			if bot in stepHistory[constants.WINNERS_KEY]:
-				slot = stepHistory[constants.WINNERS_KEY][bot]
-				slot_ctr = ("%.2f"% self.slots[slot])
-			else:
-				slot = ""
-				slot_ctr = ""
-			print(bot,"\t",self.bots[bot],"\t%.2f" % self.values[bot],
-					"\t%.2f" % stepHistory[constants.BIDS_KEY][bot],
-					"\t%.2f" % stepHistory[constants.UTILITIES_KEY][bot],
-					"\t",slot,
-					"\t", slot_ctr,
-					"\t%.0f/%.0f" % (stepHistory[constants.BUDGETS_KEY][bot],self.starting_budgets[bot]),)
+	firstCall = True
+
+
+	printStepOutput = False
+	writeStepOutput = True
+	writeStepOutputAll = False
+	writeStepOutputUs = True
+
+	def reportStep(self,step,max_step,stepHistory,our_expenses,our_utility):
+		if self.printStepOutput:
+			print("_______________________________________________________________",step,"/",max_step)
+			print("Name\tBot\tValue\tBid\tPayment\tUtility\tSlot\tCtr\tBudget")
+			for bot in self.bots:
+				if bot in stepHistory[constants.WINNERS_KEY]:
+					slot = stepHistory[constants.WINNERS_KEY][bot]
+					slot_ctr = ("%.2f"% self.slots[slot])
+					paid = ("%.2f"%stepHistory[constants.PAYMENTS_KEY][bot])
+				else:
+					slot = ""
+					slot_ctr = ""
+					paid = ""
+				print(bot,"\t",self.bots_types[bot],"\t%.2f" % self.values[bot],
+						"\t%.2f" % stepHistory[constants.BIDS_KEY][bot],
+						"\t",paid,
+						"\t%.2f" % stepHistory[constants.UTILITIES_KEY][bot],
+						"\t",slot,
+						"\t", slot_ctr,
+						"\t%.0f/%.0f" % (stepHistory[constants.BUDGETS_KEY][bot],self.starting_budgets[bot]),)
+		if self.writeStepOutput:
+			if self.writeStepOutputAll:
+				with open('Reports/'+str(self.executionNumber)+'_stepReportAll.csv','a') as csvfile:
+					fieldnames = list(self.bots)
+					writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
+					if self.firstCall:
+						writer.writeheader()
+					toWrite = dict()
+					for bot in self.bots:
+						toWrite[bot] = ("%.2f"% stepHistory[constants.UTILITIES_KEY][bot]).replace(".",",")
+						# if bot in stepHistory[constants.PAYMENTS_KEY]:
+							# toWrite[bot] = stepHistory[constants.BUDGETS_KEY][bot]
+						# else:
+						# 	toWrite[bot] = 0
+					writer.writerow(toWrite)
+			elif self.writeStepOutputUs:
+				with open('Reports/'+str(self.executionNumber)+'_stepReportUs.csv','a') as csvfile:
+					fieldnames = ["expenses","utility"]
+					writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
+
+					if self.firstCall:
+						writer.writeheader()
+					writer.writerow({"expenses":("%.2f"% our_expenses).replace(".",","),"utility":("%.2f"% our_utility).replace(".",",")})
+
+		self.firstCall = False
+
+
+
 
 
 	def reportAuction(self,history):
