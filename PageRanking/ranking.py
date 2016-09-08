@@ -1,7 +1,7 @@
 
 # As seen during the course
 # Pagerank with teleport
-def pageRank(graph, s=0.85, step=100, confidence=0, verbose = True):
+def pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
     nodes = graph.keys()
     n = len(nodes)
     done = 0
@@ -54,7 +54,7 @@ def pageRank(graph, s=0.85, step=100, confidence=0, verbose = True):
 # 2 Pick a domain whose membership is controlled, on the assumption that it is hard
 #	for a spammer to get their pages into these domains (e.g. .edu, .gov, .mil)
 
-def trustRank(graph, trusted_pages, s=0.85, step=100, confidence=0, verbose = True):
+def trustRank(graph, trusted_pages, s=0.85, step=1000, confidence=0, verbose = True):
     nodes = graph.keys()
     n = len(nodes)
     done = 0
@@ -104,9 +104,11 @@ def trustRank(graph, trusted_pages, s=0.85, step=100, confidence=0, verbose = Tr
 # (r-t)/r. 
 # A negative or small positive spam mass means that p is probably not a spam page,
 # while a spam mass close to 1 suggests that the page probably is spam.
-def spamMass(graph, trusted_pages, s, step, confidence):
-    prTime, prRank = pageRank(graph, 0.85, 75, 0)
-    trTime, trRank = trustRank(graph, 0.85, 75, 0)
+def spamMass(graph, trusted_pages, s=0.85, step=1000, confidence=0, prRank = None, trRank = None):
+    if prRank == None:
+        prTime, prRank = pageRank(graph, s, step, confidence)
+    if trRank == None:
+        trTime, trRank = trustRank(graph, trusted_pages, s, step, confidence)
 
     finalRank = dict()
     for node in graph.keys():
@@ -122,11 +124,33 @@ def read_trusted_pages(trusted_pages_list):
             pages.append(line)
     return pages
 
+def read_rankings(rankfile):
+    rankings = dict()
+    with open(rankfile, 'r') as f:
+        for line in file:
+            line = line.rstrip()
+
+            tokens = line.split()
+            page = tokens[0]
+            rank = tokens[1]
+            rankings[page] = rank
+    return rankings
+    
+
+def write_rankings(rankings, rankfile):
+    with open(rankfile, 'w') as f:
+        for page in rankings.keys():
+            f.write(str(page) + " " + str(rankings[page]) + "\n")
+
 from graph import read_graph
 
 if __name__ == "__main__":
     graph = read_graph('final_graph.dataset')
-    # prTime, prRank = pageRank(graph)
+    prTime, prRank = pageRank(graph)
     trusted_pages = read_trusted_pages('trusted_pages')
-    trTime, trTank = trustRank(graph, trusted_pages)
-    print("Finished")
+    trTime, trRank = trustRank(graph, trusted_pages)
+    finalRank = spamMass(graph, trusted_pages, prRank = prRank, trRank = trRank)
+    pr_sorted_list = sorted(prRank.keys(), key = prRank.__getitem__, reverse = True)
+    spamMass_sorted_list = sorted(finalRank.keys(), key = finalRank.__getitem__, reverse = True)
+    write_rankings(prRank, 'pageRank')
+    write_rankings(finalRank, 'spamMass')
