@@ -33,8 +33,7 @@ def read_graph(input_file, verbose = True):
                 line_no += 1
     return graph
 
-def normalize_graph(input_file, print_mapping = True):
-    graph = read_graph(input_file)
+def normalize_graph(graph, print_mapping = True):
     graph_normalized = dict()
     index_node_mapping = dict()
     index = 1
@@ -48,19 +47,17 @@ def normalize_graph(input_file, print_mapping = True):
             target_index = index_node_mapping[edge]
             graph_normalized[source_index].add(target_index)
 
-    write_graph_as_csv(graph_normalized, input_file+'_normalized.csv')
-    write_graph(graph_normalized, input_file+'_normalized')
-
     if print_mapping:
-        with open(input_file+'_normalized_mapping', 'w') as f:
+        with open('normalized_mapping', 'w') as f:
             for node in index_node_mapping:
                 index = index_node_mapping[node]
                 f.write(str(index)+" "+node+"\n")
+    return graph_normalized
 
 def read_normalization_map(graph_normalized_mapping_file):
     normalization_map = dict()
     inverse_normalization_map = dict()
-    with open(graph_normalized_mapping_file, 'w') as f:
+    with open(graph_normalized_mapping_file, 'r') as f:
         for line in f:
             line = line.rstrip()
             tokens = line.split()
