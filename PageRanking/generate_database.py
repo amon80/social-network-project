@@ -1,6 +1,7 @@
 import random
 
-def add_random_nodes_to_total_graph(graph, n_elements = 2000, num_couples = 10):
+#n_elements and n_couples adapted to our graph
+def add_random_nodes_to_total_graph(graph, n_elements = 878, num_couples = 4):
     ngroups = len(graph.keys()) // n_elements
     nodes = list(graph.keys())
     for i in range(ngroups-1):
@@ -24,7 +25,7 @@ def find_most_frequent_term(index, doc, termsToAvoid = set()):
             most_frequent_term = actual_term
     return (most_frequent_term, most_frequent_score)
 
-def create_spam_farm(graph, index, supporting_pages=100, random_pages_linking_spam=30):
+def create_spam_farm(graph, index, supporting_pages = 35, random_pages_linking_spam = 10):
     nodes_without_spam = list(graph.keys())
     num_nodes_without_spam = len(nodes_without_spam)
     #Creating target page
