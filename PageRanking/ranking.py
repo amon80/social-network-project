@@ -57,30 +57,31 @@ def pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
 def trustRank(graph, trusted_pages, s=0.85, step=1000, confidence=0, verbose = True):
     nodes = graph.keys()
     n = len(nodes)
-    done = 0
     time = 0
 
     # Initialization
     rank = dict()
-    for node in trusted_pages:
-        rank[node] = float(1)/2
 
     trusted_pages_set = set(trusted_pages)
 
     for node in nodes:
-        if node not in trusted_pages_set:
-            rank[node] = float(1)/n
+        rank[node] = float(1)/n
 
     tmp = dict()
     done = False
+
     while not done and time < step:
         time += 1
         if verbose:
             print(time)
 
+        for node in trusted_pages:
+            tmp[node] = float(1)/2
+
         for node in nodes:
-        # Each node receives a share of 1/n with probability 1-s
-            tmp[node] = float(1-s)/n 
+            if node not in trusted_pages_set:
+                # Each node receives a share of 1/n with probability 1-s
+                tmp[node] = float(1-s)/n 
 
         for node in nodes:
             for neighbour in graph[node]:
@@ -112,7 +113,7 @@ def spamMass(graph, trusted_pages, s=0.85, step=1000, confidence=0, prRank = Non
 
     finalRank = dict()
     for node in graph.keys():
-        finalRank[node] = ( prRank[node] - trRank[node] ) / trRank[node] 
+        finalRank[node] = ( prRank[node] - trRank[node] ) / prRank[node] 
 
     return finalRank
 
@@ -153,3 +154,4 @@ if __name__ == "__main__":
     spamMass_sorted_list = sorted(finalRank.keys(), key = finalRank.__getitem__, reverse = True)
     write_rankings(prRank, 'pageRank')
     write_rankings(finalRank, 'spamMass')
+    write_rankings(trRank, 'trustRank')
