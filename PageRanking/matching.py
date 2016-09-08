@@ -42,6 +42,8 @@ def create_indeces(databasefile, verbose = False):
                     query_words = queries[i].split(',')
                     
                     for word in query_words:
+                        if len(word) == 0:
+                            continue
                         if word not in index[name]:
                             index[name][word] = 0
                         if word not in inverted_index.keys():
