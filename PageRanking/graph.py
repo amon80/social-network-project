@@ -33,6 +33,27 @@ def read_graph(input_file, verbose = True):
                 line_no += 1
     return graph
 
+def read_integer_graph(input_file, verbose = True):
+    graph = dict()
+    with open(input_file) as f:
+        line_no = 1
+        for line in f:
+            try:
+                nodes = line.split()
+                node1 = int(nodes[0])
+                node2 = int(nodes[1])
+                if node1 not in graph:
+                    graph[node1] = set()
+                if node2 not in graph:
+                    graph[node2] = set()
+                graph[node1].add(node2)
+            except IndexError as e:
+                if verbose:
+                    print("Empty line found on line " + str(line_no) + "\n")
+            finally:
+                line_no += 1
+    return graph
+
 def normalize_graph(graph, print_mapping = True):
     graph_normalized = dict()
     index_node_mapping = dict()
