@@ -70,8 +70,6 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 	rev_query_winners = dict()
 	query_pay = dict()
 
-
-
 	psi = computeWeights(bids,current_budgets,starting_budgets)
 
 	# print(bids)
@@ -150,4 +148,4 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 
 	# query_pay[sorted_advertisers[i]] = bids[sorted_advertisers[i]]
 
-	return query_winners, query_pay
+	return query_winners,rev_query_winners, query_pay

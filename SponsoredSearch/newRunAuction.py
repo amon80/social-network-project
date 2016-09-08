@@ -10,10 +10,10 @@ import constants
 
 #SETTINGS
 #number of advertisers
-num_advertisers = 5
+num_advertisers = 7
 
 #number of executions
-nAuctions = 500
+nAuctions = 1
 max_step = 100
 
 # range of number of slots available to sell
@@ -31,9 +31,14 @@ maxBudget = 200
 #is VCG or FirstPriceAuction
 isVCG = True
 
-
+mustReportStep = True
+mustReportAuction = False
+mustReportAuctions = False
 
 all_bots_list = [Bot1,Bot2,Bot3,Bot4,Bot5,Bot6,Bot7]
+
+
+
 
 
 def generateBots(bots_list):
@@ -46,17 +51,26 @@ def generateBots(bots_list):
 def runAuctions(bots_list):
     bots = generateBots(bots_list)
 
+    #Update Reporter
+    rep.bots = bots
 
+    #Variables
     our_expenses = 0
     our_utility = 0
-    auction_revenue = 0
-    auction_utility = 0
+    auctions_revenue = 0
+    auctions_utility = 0
 
     for auctionIndex in range(nAuctions):
         #Auction initialization
         slots = generateSlots(minSlots,maxSlots)
         values, starting_budgets = generateAdvertisers(bots.keys(),minValue, maxValue,minBudget,maxBudget)
 
+        #Update Reporter
+        rep.slots = slots
+        rep.values = values
+        rep.starting_budgets = starting_budgets
+
+        #Variables initialization
         step = 0
         history = []
         bids = dict()
@@ -76,9 +90,9 @@ def runAuctions(bots_list):
 
             # Run Auction
             if isVCG:
-                assigned_slots, payments = budgetedVCGBalance(slots,bids, starting_budgets,budgets)
+                assigned_slots, assigned_advs, payments = budgetedVCGBalance(slots,bids, starting_budgets,budgets)
             else:
-                assigned_slots, payments = myBalance(slots,bids,starting_budgets,budgets)
+                assigned_slots, assigned_advs, payments = myBalance(slots,bids,starting_budgets,budgets)
 
 
             # Update bots utilities and budgets
@@ -87,10 +101,10 @@ def runAuctions(bots_list):
                 if bot in payments and payments[bot] > 0:
                     utilities[bot] = values[bot] - payments[bot]
                     budgets[bot] = budgets[bot] - payments[bot]
-                    auction_revenue += payments[bot]
+                    auctions_revenue += payments[bot]
                 else:
                     utilities[bot] = 0
-                auction_utility += utilities[bot]
+                auctions_utility += utilities[bot]
 
 
 
@@ -101,6 +115,7 @@ def runAuctions(bots_list):
             stepHistory[constants.PAYMENS_KEY] = dict(payments)
             stepHistory[constants.UTILITIES_KEY] = dict(utilities)
             stepHistory[constants.BUDGETS_KEY] = dict(budgets)
+            stepHistory[constants.WINNERS_KEY] = dict(assigned_advs)
 
             # Update our values
             if constants.OUR_BOT_NAME in payments:
@@ -108,9 +123,13 @@ def runAuctions(bots_list):
                 our_utility += utilities[constants.OUR_BOT_NAME]
 
             history.append(stepHistory)
-            reportStep(step,max_step,stepHistory)
+            if mustReportStep:
+                rep.reportStep(step,max_step,stepHistory)
             step += 1
-        reportAuction()
+        if mustReportAuction:
+            rep.reportAuction(history)
+    if mustReportAuctions:
+        rep.reportAuctions(our_expenses,our_utility,auctions_revenue,auctions_utility)
 
 def generateBotList(us, adv,num):
     bl = []
@@ -129,10 +148,6 @@ def runSingleAuctionDifferentSettings():
     minSlots = 3
     global maxSlots
     maxSlots = 3
-
-    for slot in range(1,4):
-        minSlots = slot
-
     #range of evaluation
     global minValue
     minValue = 0
@@ -144,7 +159,6 @@ def runSingleAuctionDifferentSettings():
     minBudget = 100
     global maxBudget
     maxBudget = 200
-
 
     runSingleBotCombinationAuction()
 
@@ -162,6 +176,9 @@ def runMultipleBotCombinationsAuctions():
             runAuctions(generateBotList(us,adversary,num_advertisers))
 
 
+no = randint(1,1000)
+rep = Reporter()
+rep.executionNumber = no
 runSingleBotCombinationAuction()
 # runMultipleBotCombinationsAuctions()
 # runAllBotsAuction()
