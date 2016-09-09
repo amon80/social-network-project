@@ -25,16 +25,17 @@ def matricial_pageRank(transition_matrix, s=0.85, step=1000, confidence=0, tax =
     second_term = multiply((1-s),tax)
     while not done and time < step:
         time += 1 
-        if verbose:
-            print(time)
         first_term_bis = dot(first_term, rank)
         tmp = add(first_term_bis, second_term)
         diff = 0
+        #tmp is a linear matrix, with this command we take the vector
         tmp = tmp.A1
         for i in nodes:
             diff += abs(rank[i]-tmp[i])
             rank[i] = tmp[i]
 
+        if verbose:
+            print(str(time) + " - diff: " + str(diff))
         if diff <= confidence:
             done = True
     return time, rank
@@ -52,6 +53,12 @@ def matricial_trustRank(transition_matrix, trusted_pages, s=0.85, step = 1000, c
     time, rank = matricial_pageRank(transition_matrix, tax = tax_vector, rank = rank_vector, verbose = verbose, confidence = confidence, s = s, step = step)
     return time,rank
 
+#Works only on integer graphs
+def order_nodes(nodes, scores):
+    tmp = dict()
+    for i in nodes:
+        tmp[i] = scores[i]
+    return sorted(tmp, key=tmp.__getitem__, reverse = True)
 
 def pageRank(graph, s=0.85, step=1000, confidence=0, verbose = True):
     nodes = graph.keys()
