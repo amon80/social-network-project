@@ -59,15 +59,17 @@ def order_nodes(nodes, scores):
 
 # A negative or small positive spam mass means that p is probably not a spam page,
 # while a spam mass close to 1 suggests that the page probably is spam.
-def spamMass(graph, trusted_pages, s=0.85, step=1000, confidence=0.001, prRank = None, trRank = None):
-    if prRank == None:
+def spamMass(graph, trusted_pages = None, s=0.85, step=1000, confidence=0.001, prRank = None, trRank = None):
+    if prRank is None:
         prTime, prRank = matricial_pageRank(graph, s, step, confidence)
-    if trRank == None:
+    if trusted_pages is None and trRank is None:
         trTime, trRank = trustRank(graph, trusted_pages, s, step, confidence)
 
-    finalRank = dict()
-    for node in graph.keys():
-        finalRank[node] = ( prRank[node] - trRank[node] ) / prRank[node] 
+    finalRank = list()
+    for i in range(len(graph)):
+        finalRank.append(0)
+    for i in range(len(graph)):
+        finalRank[i] = (prRank[i] - trRank[i]) / prRank[i] 
 
     return finalRank
 
@@ -100,21 +102,23 @@ if __name__ == "__main__":
     graph = read_integer_graph(argv[1])
     print("Finished Read graph")
 
-    # transition_matrix = matrix(get_transition_matrix(graph))
-    # print("Finished Get transition_matrix")
-    inv_transition_matrix = matrix(get_inverse_transition_matrix(graph))
-    print("Finished Get inv_transition_matrix")
-    inv_step, inv_scores = matricial_pageRank(inv_transition_matrix, step = 1000, confidence = 0.001, verbose = True)
-    print("Finished inverse pageRank")
-    write_rankings(inv_scores, argv[1]+'_inv_pagerank')
-    readed_rankings = read_rankings(argv[1]+'_inv_pagerank')
-    confidence = 0.001
-    for i in range(len(graph)):
-        if inv_scores[i] - readed_rankings[i] > confidence:
-            print("Error " + str(i))
-    # prTime, prRank = matricial_pageRank(transition_matrix, step = 1000, confidence = 0.001, verbose = True)
-    # print("Finished classical pageRank")
-    # write_rankings(prRank, argv[1]+'_pagerank')
+    transition_matrix = matrix(get_transition_matrix(graph))
+    print("Finished Get transition_matrix")
+    prTime, prRank = matricial_pageRank(transition_matrix, step = 1000, confidence = 0.001, verbose = True)
+    print("Finished classical pageRank")
+    write_rankings(prRank, argv[1]+'_pagerank')
+    trTime, trRank = matricial_trustRank(transition_matrix, [6465, 4517, 5366, 1409, 8630, 10465, 6885, 11827, 7693, 5443, 1386, 9451, 9622, 9045, 12632, 4266, 8881, 5946], confidence = 0.001, verbose = True)
+    write_rankings(trRank, argv[1]+'_trustrank')
+    # inv_transition_matrix = matrix(get_inverse_transition_matrix(graph))
+    # print("Finished Get inv_transition_matrix")
+    # inv_step, inv_scores = matricial_pageRank(inv_transition_matrix, step = 1000, confidence = 0.001, verbose = True)
+    # print("Finished inverse pageRank")
+    # write_rankings(inv_scores, argv[1]+'_inv_pagerank')
+    # readed_rankings = read_rankings(argv[1]+'_inv_pagerank')
+    # confidence = 0.001
+    # for i in range(len(graph)):
+    #     if inv_scores[i] - readed_rankings[i] > confidence:
+    #         print("Error " + str(i))
     # readed_rankings = read_rankings(argv[1]+'_pagerank')
     # confidence = 0.001
     # for i in range(len(graph)):
