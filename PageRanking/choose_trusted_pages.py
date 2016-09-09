@@ -12,4 +12,4 @@ if __name__ == "__main__":
     pages_on_which_use_oracle = ordered_nodes_inv[:num_pages] + ordered_nodes[:num_pages]
     norm_map, inv_norm_map = read_normalization_map('normalized_mapping')
     for page in pages_on_which_use_oracle:
-        print(inv_norm_map[page])
+        print(inv_norm_map[page] + " - " + str(page))
