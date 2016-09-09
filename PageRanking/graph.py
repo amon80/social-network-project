@@ -133,9 +133,3 @@ def get_inverse_transition_matrix(graph):
             if j in graph[i]:
                 inv_transition_matrix [i][j] = 1/in_degrees[j]
     return inv_transition_matrix 
-
-if __name__ == "__main__":
-    graph = read_integer_graph('toy_graph')
-    inv_transition_matrix = get_inverse_transition_matrix(graph)
-    print(graph)
-    print(inv_transition_matrix)
