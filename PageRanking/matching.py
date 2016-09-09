@@ -1,50 +1,6 @@
 #!/usr/bin/python
 
-#The operation of retriving advertisers or documents matching a given query can be executed in two phases:
-#in the first phase, we build the necessary data structures;
-#in the second phase, we answer to the given query.
-
-#The first phase is usually run only once.
-#The data structure that is usually built in this phase is an "inverted index".
-#This is a dictionary that for every word (or for every query phrase) mantains a list of
-#documents containing that word (query phrase) / advertisers requesting to appear on that word (query phrase).
-#In this phase, we assume that there is a database in which we save for each document (advertiser, resp.)
-#the link to the document (the name of the advertiser, resp.)
-#and the list of word (or phrases) of the document (on which the advertiser request to appear, resp.).
-#In the implementations below we assume that the database is a file as follows:
-#    nome_adv1 prova,test,prova esame,esame,appello,appello esame
-#    nome_adv2 prova,esempio,caso semplice,evidenza
-#    nome_adv3 esempio test,esempio esame,esempio prova,esame prova
-
 ###BEST MATCH###
-
-import sys
-from index import read_index
-
-#Creation of inverted index
-#We create an inverted index with an entry for every word of a document or for any word on which advertisers requested to appear
-#We also create the non-inverted index, so that it's easy to compute frequencies
-    
-#First variant, using only inverted_index
-#Given a query, each document score is proportional to the number of times it contains query terms
-def best_match(query, threshold, inverted_index):
-    scores = dict()
-    best_docs = set()
-    
-    query_words = query.split()
-    #For every word we look at each document in the list and we increment the document's weight
-    for word in query_words:
-        for doc in inverted_index[word].keys():
-            if doc not in scores:
-                scores[doc] = inverted_index[word][doc]
-            else:
-                scores[doc] += inverted_index[word][doc]
-
-            #We use a threshold to choose which document must be returned
-            if scores[doc] >= threshold:
-                best_docs.add(doc)
-                
-    return best_docs    
 
 #Computes the frequency of word in document given the search index
 def compute_frequency(index, document, word):
@@ -57,7 +13,7 @@ def compute_frequency(index, document, word):
 
 #Second variant, using both index and inverted_index
 #Given a query, each document score is proportional to the frequency of each query term in it
-def best_match2(query, inverted_index, index):
+def best_match(query, inverted_index, index):
 
     scores = dict()
     query_words = query.split()
@@ -72,7 +28,7 @@ def best_match2(query, inverted_index, index):
             else:
                 scores[doc] = (doc, scores[doc][1] + frequency)
 
-    best_docs = sorted(scores.items(), key = lambda x:x[1], reverse=True)
+    best_docs = sorted(scores.items(), key = scores.__getitem__, reverse=True)
     if len(best_docs) > 20:
         return best_docs[0:19]
     else:
@@ -100,9 +56,8 @@ def compute_score(query_term, doc_frequencies):
     return number_occurences_term / total_occurences
 
 
-#Third variant, it must be compared with best_match2
 #sorted_inverted_index is a dict. Key: words. Value: list of couples. Couples: First term:document. Second term:Frequency
-def best_match3(query, sorted_inverted_index,index):    
+def best_match2(query, sorted_inverted_index, index):    
 
     impacts = dict()            # key: doc_name     | value: impact
     scores  = dict()            # key: doc_name     | value: score (#occurence of query term / # words)
@@ -173,27 +128,3 @@ def best_match3(query, sorted_inverted_index,index):
         return sorted_scores[0:19]
     else:
         return sorted_scores
-
-
-if __name__ == "__main__":
-    (index, inverted_index) = read_index(sys.argv[1])
-    
-    print(index)
-
-    new_query = "prova vasco"
-
-    ##1  Sort documents in each inverted index in order of frequency of the derm at which the inverted index refers
-    # sorted_inverted_index = sort_inverted_index(inverted_index, index)
-    #
-    # res = best_match3(new_query,sorted_inverted_index,index)
-    # print(new_query)
-    #
-    # i=0
-    # for re in res:
-    #     i+=1
-    #     print("\n#",i,)
-    #     print(re[0])
-    #     print("Frequency:",re[1])
-    #     print("Doc:")
-    #     print(index[re[0]])
-    #     print("\n")
