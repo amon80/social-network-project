@@ -1,4 +1,5 @@
 from random import randint, random
+import constants
 
 ################ PARAMETERS
 # # range of number of slots available to sell for each query
@@ -15,17 +16,25 @@ from random import randint, random
 
 verbose = False
 
+overrideMyBudget = False
+overrideMyEvaluation = True
+overridedBudget = 200
+overridedEvaluation = 10
 
 # generates bidders: evaluation for each query and budget
 def generateAdvertisers(advertisers, minValue, maxValue, minBudget, maxBudget):
 	adv_evaluations = dict()
 	for advertiser in advertisers:
 		adv_evaluations[advertiser] = randint(minValue,maxValue)
-			# if bid is 0, should I remove the bidder from that query?
+	if overrideMyEvaluation:
+		adv_evaluations[constants.OUR_BOT_NAME] = overridedEvaluation
 
 	adv_budgets = dict()
 	for advertiser in advertisers:
 		adv_budgets[advertiser] = randint(minBudget,maxBudget)
+	if overrideMyBudget:
+		adv_budgets[constants.OUR_BOT_NAME] = overridedBudget
+
 	return adv_evaluations,adv_budgets
 
 # generates clickthrough rates for each query and for each position

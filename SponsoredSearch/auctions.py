@@ -116,6 +116,7 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 		del alt_bids[winner]
 		del alt_current_budgets[winner]
 		del alt_starting_budgets[winner]
+
 		alt_psi = computeWeights(alt_bids,alt_current_budgets,alt_starting_budgets)
 
 		sorted_alt_advertisers = sorted(alt_psi.keys(), key = alt_psi.__getitem__, reverse = True)
@@ -125,8 +126,7 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 		query_alt_winners = dict()
 		rev_query_alt_winners = dict()
 
-
-		for i in range(nWinners):
+		for i in range(min(nWinners,len(sorted_alt_advertisers))):
 			query_alt_winners[sorted_slots[i]] = sorted_alt_advertisers[i]
 			rev_query_alt_winners[sorted_alt_advertisers[i]] = sorted_slots[i]
 
@@ -134,12 +134,15 @@ def budgetedVCGBalance(slot_ctrs, bids, starting_budgets, current_budgets):
 
 		if utilityDebug:
 			print ("Utility without",winner)
+
 		utility_without_me = 0
 		for alt_winner in rev_query_alt_winners.keys():
 			if utilityDebug:
 				print(bids[alt_winner],"*",slot_ctrs[rev_query_alt_winners[alt_winner]],end=" + ")
 			utility_without_me += bids[alt_winner]*slot_ctrs[rev_query_alt_winners[alt_winner]]
+
 		harm = utility_without_me - utility_with_me
+
 		if utilityDebug:
 			print("=",utility_without_me)
 			print(">>Without",winner,"the winners are",query_alt_winners.values())
