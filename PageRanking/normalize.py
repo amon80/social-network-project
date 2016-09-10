@@ -39,3 +39,9 @@ def read_normalization_map(graph_normalized_mapping_file):
             normalization_map[page] = index
             inverse_normalization_map[index] = page
     return (normalization_map, inverse_normalization_map)
+
+def convert_pages_from_integers_to_url(list_pages_as_indeces, pages_mapping):
+    converted_pages = list()
+    for page in list_pages_as_indeces:
+        converted_pages.append(pages_mapping[page])
+    return converted_pages

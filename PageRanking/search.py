@@ -2,7 +2,7 @@ from matching import best_match, best_match2, sort_inverted_index
 from index import read_index
 from ranking import read_rankings
 from time import clock
-from normalize import read_normalization_map
+from normalize import read_normalization_map, convert_pages_from_integers_to_url
 from sys import argv
 
 def query_database_pagerank_bestmatch(query, pageranks, index, inverted_index):
@@ -25,7 +25,6 @@ def query_database_pagerank_bestmatch(query, pageranks, index, inverted_index):
 def query_database_pagerank_bestmatch2(query, pageranks, index, sorted_inverted_index):
     final_scores = dict()
     best_docs_matching_scores = dict()
-    best_docs_rank_scores = dict()
 
     #computing matching score
     best_docs_as_list_of_tuples = best_match2(query, sorted_inverted_index, index) 
@@ -60,7 +59,6 @@ def query_database_spammass_bestmatch(query, pageranks, spammass_ranks, index, i
 def query_database_spammass_bestmatch2(query, pagerank, spammass_ranks, index, sorted_inverted_index, spammass_threshold = 0.70):
     final_scores = dict()
     best_docs_matching_scores = dict()
-    best_docs_rank_scores = dict()
 
     #computing matching score
     best_docs_as_list_of_tuples = best_match2(query, sorted_inverted_index, index) 
@@ -77,11 +75,6 @@ def query_database_spammass_bestmatch2(query, pagerank, spammass_ranks, index, s
 
     return sorted(final_scores.keys(), key=final_scores.__getitem__, reverse=True)
 
-def convert_pages_from_integers_to_url(list_pages_as_indeces, pages_mapping):
-    converted_pages = list()
-    for page in list_pages_as_indeces:
-        converted_pages.append(pages_mapping[page])
-    return converted_pages
 
 if __name__ == "__main__":
     query = ""
@@ -102,26 +95,38 @@ if __name__ == "__main__":
     result_best_match_pagerank = query_database_pagerank_bestmatch(query, pageranks, index, inv_index)
     result_best_match_pagerank_for_human = convert_pages_from_integers_to_url(result_best_match_pagerank, inv_mapping)
     end = clock()
+    print("Best_match + pagerank:")
+    print(result_best_match_pagerank_for_human)
     result_best_match_pagerank_time = end - start
+    print("Time: " + str(result_best_match_pagerank_time))
 
     #Best_match2 with pagerank
     start = clock()
     result_best_match2_pagerank = query_database_pagerank_bestmatch2(query, pageranks, index, sorted_inv_index)
     result_best_match2_pagerank_for_human = convert_pages_from_integers_to_url(result_best_match2_pagerank, inv_mapping)
     end = clock()
+    print("Best_match2 + pagerank")
+    print(result_best_match2_pagerank_for_human)
     result_best_match2_pagerank_time = end - start
+    print("Time: " + str(result_best_match2_pagerank_time))
 
     #Best_match with spammass
     start = clock()
     result_best_match_spammass = query_database_spammass_bestmatch(query, pageranks, spammass_ranks, index, inv_index)
     result_best_match_spammass_for_human = convert_pages_from_integers_to_url(result_best_match_spammass, inv_mapping)
     end = clock()
-    result_best_match_pagerank_time = end - start
+    print("Best_match + spammass")
+    print(result_best_match_spammass_for_human)
+    result_best_match_spammass_time = end - start
+    print("Time: " + str(result_best_match_spammass_time))
 
     #Best_match2 with spammass
     start = clock()
     result_best_match2_spammass = query_database_spammass_bestmatch2(query, pageranks, spammass_ranks, index, sorted_inv_index)
     result_best_match2_spammass_for_human = convert_pages_from_integers_to_url(result_best_match2_spammass, inv_mapping)
     end = clock()
+    print("Best_match2 + spammass")
+    print(result_best_match2_spammass_for_human)
     result_best_match2_spammass_time = end - start
+    print("Time: " + str(result_best_match2_spammass_time))
 
