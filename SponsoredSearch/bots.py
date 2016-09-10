@@ -386,7 +386,7 @@ class Bot9(Bot,metaclass=Bot9Meta):
         return "Bot9"
 
     def strategy(self):
-        return "Begins low, grow higher to obtain its place."
+        return "Incremental Bot - Begins low, grow higher to obtain its place."
 
 
 

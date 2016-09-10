@@ -21,6 +21,7 @@ class Reporter(object):
 	writeStepOutputUs = False
 
 	writeAuctionsAdvertiserOutput = True
+	writeAuctionsAuctionOutput = False
 
 	def reportStep(self,step,max_step,stepHistory,our_expenses,our_utility):
 		if self.printStepOutput:
@@ -85,8 +86,16 @@ class Reporter(object):
 				if self.firstCall:
 					writer.writeheader()
 				writer.writerow({"Our Bot":self.bots_types[constants.OUR_BOT_NAME],"Adversary":self.bots_types["b"],"Utility":("%.2f"% our_utility).replace(".",",")})
-				# writer.writerow({"expenses":("%.2f"% our_expenses).replace(".",","),"utility":("%.2f"% our_utility).replace(".",",")})
+		if self.writeAuctionsAuctionOutput:
+			with open('Reports/'+str(self.executionNumber)+'_auctionsAuctionReport.csv','a') as csvfile:
+				fieldnames = ["Bots","Auction revenue","Auction utility"]
+				writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
+
+				if self.firstCall:
+					writer.writeheader()
+				writer.writerow({"Bots":self.bots_types[constants.OUR_BOT_NAME],"Auction revenue":("%.2f"% auctions_revenue).replace(".",","),"Auction utility":("%.2f"% auctions_utility).replace(".",",")})
 		self.firstCall = False
+
 
 
 

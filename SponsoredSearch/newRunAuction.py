@@ -148,27 +148,6 @@ def generateBotList(us, adv,num):
 def runAllBotsAuction():
     runAuctions(all_bots_list)
 
-def runSingleAuctionDifferentSettings():
-    #Settings
-    # range of number of slots available to sell
-    global minSlots
-    minSlots = 3
-    global maxSlots
-    maxSlots = 3
-    #range of evaluation
-    global minValue
-    minValue = 0
-    global maxValue
-    maxValue = 10
-
-    #range of budgets for each advertiser
-    global minBudget
-    minBudget = 100
-    global maxBudget
-    maxBudget = 200
-
-    runSingleBotCombinationAuction()
-
 def runSingleBotCombinationAuction():
     #Settings
     our_bot = Bot9
@@ -184,12 +163,28 @@ def runMultipleBotCombinationsAuctions():
             runAuctions(generateBotList(us,adversary,num_advertisers))
 
 
+def runMultipleBotCombinationsAuctions2():
+    #execution
+    for us in all_bots_list:
+        for adversary in all_bots_list:
+            print(us,"vs",adversary)
+            runAuctions(generateBotList(us,adversary,num_advertisers))
+
+def runAllSameBotAuctions():
+    for bot_type in all_bots_list:
+        print("Running ",bot_type)
+        runAuctions(generateBotList(bot_type,bot_type,num_advertisers))
+
+
 no = randint(1,1000)
 rep = Reporter()
 rep.executionNumber = no
 print("Executing ",no)
-# runSingleBotCombinationAuction()
+
 printAuctionSettings(no,num_advertisers+1,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)
-runMultipleBotCombinationsAuctions()
+# runMultipleBotCombinationsAuctions()
+runMultipleBotCombinationsAuctions2()
+print("Executed ",no)
 # runAllBotsAuction()
-# runSingleAuctionDifferentSettings()
+# runSingleBotCombinationAuction()
+# runAllSameBotAuctions()
