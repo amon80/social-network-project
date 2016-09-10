@@ -46,8 +46,8 @@ def matricial_trustRank(transition_matrix, trusted_pages, s=0.85, step = 1000, c
         tax_vector.append(0)
     for page in trusted_pages:
         tax_vector[page] = 1
-    rank_vector = list(tax_vector)
     tax_vector = multiply((1/len(trusted_pages)),tax_vector)
+    rank_vector = list(tax_vector)
     time, rank = matricial_pageRank(transition_matrix, tax = tax_vector, rank = rank_vector, verbose = verbose, confidence = confidence, s = s, step = step)
     return time,rank
 
