@@ -1,7 +1,9 @@
 from matching import best_match, best_match2, sort_inverted_index
 from index import read_index
 from ranking import read_ranking
+from time import clock
 from sys import argv
+from graph import read_normalization_mapping
 
 def query_database_pagerank_bestmatch(query, pageranks, index, inverted_index):
     final_scores = dict()
@@ -79,4 +81,37 @@ if __name__ == "__main__":
     query = ""
     for i in range(1, len(argv)):
         query += argv[i] + " "
+    #Loading indeces
+    index, inv_index = read_index('total_index_with_spam_farm_normalized')
+    sorted_inv_index = sort_inverted_index(inverted_index, index)
+    #Loading rankings
+    pageranks = read_ranking('total_graph_random_edges_and_spam_farm_normalized_pagerank')
+    spammass_ranks = read_ranking('spamMass')
+    #Loading mapping
+    mapping, inv_mapping = read_normalization_mapping('normalized_mapping')
+    #Starting queries
+
+    #Best_match with pagerank
+    start = clock()
+    result_best_match_pagerank = query_database_pagerank_bestmatch(query, pageranks, index, inv_index)
+    end = clock()
+    result_best_match_pagerank_time = end - start
+
+    #Best_match2 with pagerank
+    start = clock()
+    result_best_match2_pagerank = query_database_pagerank_bestmatch2(query, pageranks, index, sorted_inv_index)
+    end = clock()
+    result_best_match2_pagerank_time = end - start
+
+    #Best_match with spammass
+    start = clock()
+    result_best_match_spammass = query_database_spammass_bestmatch(query, pageranks, spammass_ranks, index, inv_index)
+    end = clock()
+    result_best_match_pagerank_time = end - start
+
+    #Best_match2 with spammass
+    start = clock()
+    result_best_match2_spammass = query_database_spammass_bestmatch2(query, pageranks, spammass_ranks, index, sorted_inv_index)
+    end = clock()
+    result_best_match2_spammass_time = end - start
 
