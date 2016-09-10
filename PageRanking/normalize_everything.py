@@ -1,5 +1,6 @@
-from graph import read_graph, write_graph, normalize_graph, read_normalization_map
-from index import read_index, write_index, normalize_index
+from graph import read_graph, write_graph
+from normalize import normalize_graph, read_normalization_map, normalize_index
+from index import read_index, write_index
 from generate_database import create_spam_farm
 from sys import argv
 

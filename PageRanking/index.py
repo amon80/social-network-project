@@ -45,9 +45,4 @@ def write_index(index, output_file):
                     f.write(str(query_term) + ",")
             f.write("\n")
 
-def normalize_index(index, normalization_map):
-    normalized_index = dict()
-    for page in index:
-        normalized_index[normalization_map[page]] = index[page]
-    return normalized_index
 
