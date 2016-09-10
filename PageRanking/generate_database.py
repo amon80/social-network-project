@@ -25,6 +25,7 @@ def find_most_frequent_term(index, doc, termsToAvoid = set()):
             most_frequent_term = actual_term
     return (most_frequent_term, most_frequent_score)
 
+#Use on non normalized graph
 def create_spam_farm(graph, index, supporting_pages = 35, random_pages_linking_spam = 10):
     nodes_without_spam = list(graph.keys())
     num_nodes_without_spam = len(nodes_without_spam)
