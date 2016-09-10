@@ -28,7 +28,8 @@ def best_match(query, inverted_index, index):
             else:
                 scores[doc] = (doc, scores[doc][1] + frequency)
 
-    best_docs = sorted(scores.items(), key = scores.__getitem__, reverse=True)
+    scores_as_list = list(scores.values())
+    best_docs = sorted(scores_as_list, key = lambda x:x[1], reverse=True)
     if len(best_docs) > 20:
         return best_docs[0:19]
     else:
