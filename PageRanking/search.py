@@ -51,12 +51,12 @@ def query_database_spammass_bestmatch(query, pageranks, spammass_ranks, index, i
         if spammass_ranks[doc] > spammass_threshold:
             final_scores[doc] = best_docs_matching_scores[doc] * pageranks[doc]
         else:
-            final_scores[doc] = 0
+            final_scores[doc] = -1
 
     return sorted(final_scores.keys(), key=final_scores.__getitem__, reverse=True)
 
 #inverted_index must be given already sorted
-def query_database_spammass_bestmatch2(query, pagerank, spammass_ranks, index, sorted_inverted_index, spammass_threshold = 0.70):
+def query_database_spammass_bestmatch2(query, pageranks, spammass_ranks, index, sorted_inverted_index, spammass_threshold = 0.70):
     final_scores = dict()
     best_docs_matching_scores = dict()
 
@@ -66,30 +66,31 @@ def query_database_spammass_bestmatch2(query, pagerank, spammass_ranks, index, s
         best_docs_matching_scores[best_doc_tuple[0]] = best_doc_tuple[1]
     
     #combining the two scores
-    #since spammass >= to 1 when its spam, the scores remains the same. If spammass is little or negative, score is boosted
     for doc in best_docs_matching_scores:
         if spammass_ranks[doc] > spammass_threshold:
             final_scores[doc] = best_docs_matching_scores[doc] * pageranks[doc]
         else:
-            final_scores[doc] = 0
+            final_scores[doc] = -1
+
 
     return sorted(final_scores.keys(), key=final_scores.__getitem__, reverse=True)
 
-
-if __name__ == "__main__":
-    query = ""
-    for i in range(1, len(argv)):
-        query += argv[i] + " "
+def confrontate_query_methods(query, index = None, inv_index = None, sorted_inv_index = None, pageranks = None, spammass_ranks = None, mapping = None, inv_mapping = None):
     #Loading indeces
-    index, inv_index = read_index('total_index_with_spam_farm_normalized')
-    sorted_inv_index = sort_inverted_index(inv_index, index)
+    if index is None or inv_index is None:
+        index, inv_index = read_index('total_index_with_spam_farm_normalized')
+    if sorted_inv_index is None:
+        sorted_inv_index = sort_inverted_index(inv_index, index)
     #Loading rankings
-    pageranks = read_rankings('total_graph_random_edges_and_spam_farm_normalized_pagerank')
-    spammass_ranks = read_rankings('spamMass')
+    if pageranks is None:
+        pageranks = read_rankings('total_graph_random_edges_and_spam_farm_normalized_pagerank')
+    if spammass_ranks is None:
+        spammass_ranks = read_rankings('spamMass')
     #Loading mapping
-    mapping, inv_mapping = read_normalization_map('normalized_mapping')
-    #Starting queries
+    if mapping is None or inv_mapping is None:
+        mapping, inv_mapping = read_normalization_map('normalized_mapping')
 
+    #Starting queries
     #Best_match with pagerank
     start = clock()
     result_best_match_pagerank = query_database_pagerank_bestmatch(query, pageranks, index, inv_index)
@@ -130,3 +131,9 @@ if __name__ == "__main__":
     result_best_match2_spammass_time = end - start
     print("Time: " + str(result_best_match2_spammass_time))
 
+
+if __name__ == "__main__":
+    query = ""
+    for i in range(1, len(argv)):
+        query += argv[i] + " "
+    confrontate_query_methods(query)
