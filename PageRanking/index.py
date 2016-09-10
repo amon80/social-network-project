@@ -8,7 +8,7 @@ def read_index(databasefile, verbose = False):
         for line in infile:
             line = line.rstrip()
             name_list = line.split(' ',1)
-            name = name_list[0]
+            name = int(name_list[0])
             if name not in index.keys():
                 index[name] = dict()
             try:
