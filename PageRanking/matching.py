@@ -20,13 +20,20 @@ def best_match(query, inverted_index, index):
 
     #For every word we look at each document in the list and we increment the document's weight
     for word in query_words:
-        for doc in inverted_index[word].keys():
+        try:
+            documents_responding_to_word = inverted_index[word]
+        except KeyError:
+            continue
+        for doc in documents_responding_to_word:
             #Computing word frequence in doc
             frequency = compute_frequency(index, doc, word)
             if doc not in scores:
                 scores[doc] = (doc, frequency)
             else:
                 scores[doc] = (doc, scores[doc][1] + frequency)
+    if len(scores) == 0:
+        return []
+
 
     scores_as_list = list(scores.values())
     best_docs = sorted(scores_as_list, key = lambda x:x[1], reverse=True)
@@ -68,7 +75,12 @@ def best_match2(query, sorted_inverted_index, index):
 
     ##2  For every query term define its possible impact on the score as the frequency of the most frequent document in its index
     for word in query_words:
-        impacts[word] = sorted_inverted_index[word][0][1]
+        try:
+            impacts[word] = sorted_inverted_index[word][0][1]
+        except KeyError:
+            continue
+    if len(impacts) == 0:
+        return []
 
     ##3  Sort the query terms in decreasing order of impact
     query_term_ordered_by_impact = sorted(impacts, key=impacts.get, reverse=True)
