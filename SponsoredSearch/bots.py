@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from random import randint
 from math import ceil
+import constants
 
 
 # Bots:
@@ -47,7 +48,13 @@ class Bot7Meta(type):
     def __str__(self):
         return "Bot7"
 
+class Bot8Meta(type):
+    def __str__(self):
+        return "Bot8"
 
+class Bot9Meta(type):
+    def __str__(self):
+        return "Bot9"
 
 class Bot(object):
 # class Bot(metaclass=ABCMeta):
@@ -101,8 +108,8 @@ class Bot1(Bot,metaclass=Bot1Meta):
             return evaluation
 
         #Initialization
-        last_step_slots = history[step-1]["adv_slots"]
-        last_step_bids = history[step-1]["adv_bids"]
+        last_step_slots = history[step-1][constants.SLOTS_KEY]
+        last_step_bids = history[step-1][constants.BIDS_KEY]
 
         sorted_last_step_bids = sorted(last_step_bids.values(), reverse = True)
         sorted_slots_clicktr = sorted(slot_ctrs.keys(), key = slot_ctrs.__getitem__, reverse = True)
@@ -146,11 +153,9 @@ class Bot2(Bot,metaclass=Bot2Meta):
         if step == 0:
             return evaluation
 
-
-
         #Initialization
-        last_step_slots = history[step-1]["adv_slots"]
-        last_step_bids = history[step-1]["adv_bids"]
+        last_step_slots = history[step-1][constants.SLOTS_KEY]
+        last_step_bids = history[step-1][constants.BIDS_KEY]
 
         sorted_last_step_bids = sorted(last_step_bids.values(), reverse = True)
         sorted_slots_clicktr = sorted(slot_ctrs.keys(), key = slot_ctrs.__getitem__, reverse = True)
@@ -197,8 +202,8 @@ class Bot3(Bot,metaclass=Bot3Meta):
             return evaluation
 
         #Initialization
-        last_step_slots = history[step-1]["adv_slots"]
-        last_step_bids = history[step-1]["adv_bids"]
+        last_step_slots = history[step-1][constants.SLOTS_KEY]
+        last_step_bids = history[step-1][constants.BIDS_KEY]
 
         sorted_last_step_bids = sorted(last_step_bids.values(), reverse = True)
         sorted_slots_clicktr = sorted(slot_ctrs.keys(), key = slot_ctrs.__getitem__, reverse = True)
@@ -242,7 +247,7 @@ class Bot4(Bot,metaclass=Bot4Meta):
 
         max_bid = -1
         for step in range(len(history)):
-            for bid in history[step]["adv_bids"].values():
+            for bid in history[step][constants.BIDS_KEY].values():
                 if bid >= max_bid:
                     max_bid = bid
         return max_bid
@@ -263,9 +268,9 @@ class Bot5(Bot,metaclass=Bot5Meta):
         if step == 0:
             return evaluation
 
-        last_step_bids = history[step-1]["adv_bids"]
+        last_step_bids = history[step-1][constants.BIDS_KEY]
         min_bid_last_step = min(last_step_bids.values())
-        #max?
+
 
         return min(min_bid_last_step, evaluation)
 
@@ -280,18 +285,17 @@ class Bot6(Bot,metaclass=Bot6Meta):
     """Submit random bid"""
     def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
 
-        step = len(history)
+        # step = len(history)
 
-        if step == 0:
-            return evaluation
+        # if step == 0:
+        #     return evaluation
 
-        last_step_bids = history[step-1]["adv_bids"]
-        min_bid_last_step = min(last_step_bids.values())
-        max_bid_last_step = max(last_step_bids.values())
-        mab = ceil(min_bid_last_step*10)
-        mib = ceil(max_bid_last_step*10)
-        res = randint(mab,mib)
-        return res/10
+        # last_step_bids = history[step-1][constants.BIDS_KEY]
+        # min_bid_last_step = min(last_step_bids.values())
+        # max_bid_last_step = max(last_step_bids.values())
+        # mab = ceil(min_bid_last_step*10)
+        # mib = ceil(max_bid_last_step*10)
+        return randint(0,10)
 
     def __str__(self):
         return "Bot6"
@@ -313,14 +317,78 @@ class Bot7(Bot,metaclass=Bot7Meta):
             return Bot4().response(name,evaluation,history,slot_ctrs,current_budget, initial_budget)
         else:
             return Bot1().response(name,evaluation,history,slot_ctrs,current_budget, initial_budget)
-
         return
 
     def __str__(self):
         return "Bot7"
 
     def strategy(self):
+        return "Do competitor-bursting as long as your current budget is half the initial budget and then do best-response"
+
+class Bot8(Bot,metaclass=Bot8Meta):
+    """Combination of the above bots based on the current badget or the advertiser value for the current query"""
+    "e.g. do competitor bursting for queries for which the advertiser value is high and budget-saving for the others"
+
+    def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
+        step = len(history)
+
+        if step == 0:
+            return evaluation
+
+        if evaluation > 6:
+            return Bot4().response(name,evaluation,history,slot_ctrs,current_budget, initial_budget)
+        else:
+            return Bot5().response(name,evaluation,history,slot_ctrs,current_budget, initial_budget)
+
+
+    def __str__(self):
+        return "Bot8"
+
+    def strategy(self):
         return "Combination of the above bots based on the current badget or the advertiser value for the current query"
+
+class Bot9(Bot,metaclass=Bot9Meta):
+    bidRaise = 0.1
+
+    def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
+        step = len(history)
+
+        if step == 0:
+            return 0
+
+        utility = 0
+        payment = 0
+
+
+        for winner in history[step-1][constants.PAYMENTS_KEY]:
+            paid = history[step-1][constants.PAYMENTS_KEY][winner]
+            ctr = slot_ctrs[history[step-1][constants.WINNERS_KEY][winner]]
+
+            if winner == name:
+                #If the bot won this slot, he has no interest in raising its price
+                new_utility = (evaluation - paid)*ctr
+                if new_utility > utility:
+                    utility = new_utility
+                    payment = paid
+            else:
+                #If another bot won this slot, the bot must raise to obtain it
+                new_utility = (evaluation - paid-self.bidRaise)*ctr
+                if new_utility > utility:
+                    utility = new_utility
+                    payment = paid + self.bidRaise
+
+        return payment
+
+
+
+
+    def __str__(self):
+        return "Bot9"
+
+    def strategy(self):
+        return "Begins low, grow higher to obtain its place."
+
+
 
 #We implement a possible bot for an advertiser in a repeated GSP auction
 #The bot of an advertiser is a program that, given the history of what occurred in previous auctions, suggest a bid for the next auction.
@@ -351,8 +419,8 @@ def best_response(name, adv_value, slot_ctrs, history):
         return 0
 
     #Initialization
-    adv_slots=history[step-1]["adv_slots"]
-    adv_bids=history[step-1]["adv_bids"]
+    adv_slots=history[step-1][constants.SLOTS_KEY]
+    adv_bids=history[step-1][constants.BIDS_KEY]
 
     sort_bids=sorted(adv_bids.values(), reverse=True)
     sort_slots=sorted(slot_ctrs.keys(), key=slot_ctrs.__getitem__, reverse=True)

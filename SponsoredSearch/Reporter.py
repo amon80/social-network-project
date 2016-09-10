@@ -15,10 +15,12 @@ class Reporter(object):
 	firstCall = True
 
 
-	printStepOutput = False
-	writeStepOutput = True
+	printStepOutput = True
+	writeStepOutput = False
 	writeStepOutputAll = False
-	writeStepOutputUs = True
+	writeStepOutputUs = False
+
+	writeAuctionsAdvertiserOutput = True
 
 	def reportStep(self,step,max_step,stepHistory,our_expenses,our_utility):
 		if self.printStepOutput:
@@ -75,9 +77,16 @@ class Reporter(object):
 			print(history[step][constants.UTILITIES_KEY][constants.OUR_BOT_NAME])
 
 	def reportAuctions(self,our_expenses,our_utility,auctions_revenue,auctions_utility):
-		print("We spent %.2f" % our_expenses,"and gained %.2f" % our_utility)
-		print("The auctions had revenue %.2f" % auctions_revenue,"and gained %.2f " %auctions_utility)
+		if self.writeAuctionsAdvertiserOutput:
+			with open('Reports/'+str(self.executionNumber)+'_auctionsAdvertiserReport.csv','a') as csvfile:
+				fieldnames = ["Our Bot","Adversary","Utility"]
+				writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
 
+				if self.firstCall:
+					writer.writeheader()
+				writer.writerow({"Our Bot":self.bots_types[constants.OUR_BOT_NAME],"Adversary":self.bots_types["b"],"Utility":("%.2f"% our_utility).replace(".",",")})
+				# writer.writerow({"expenses":("%.2f"% our_expenses).replace(".",","),"utility":("%.2f"% our_utility).replace(".",",")})
+		self.firstCall = False
 
 
 

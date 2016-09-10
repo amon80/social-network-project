@@ -1,6 +1,6 @@
 from auctions import myBalance, budgetedVCGBalance
 from AuctionGenerator import generateAdvertisers,generateSlots
-from bots import Bot1, Bot2, Bot3, Bot4, Bot5, Bot6, Bot7
+from bots import *
 from Reporter import *
 from string import ascii_lowercase
 from random import randint
@@ -13,7 +13,7 @@ import constants
 num_advertisers = 7
 
 #number of executions
-nAuctions = 1
+nAuctions = 500
 max_step = 100
 
 # range of number of slots available to sell
@@ -31,13 +31,15 @@ maxBudget = 200
 #is VCG or FirstPriceAuction
 isVCG = True
 
-mustReportStep = True
+mustReportStep = False
 mustReportAuction = False
-mustReportAuctions = False
+mustReportAuctions = True
 
-all_bots_list = [Bot1,Bot2,Bot3,Bot4,Bot5,Bot6,Bot7]
+all_bots_list = [Bot1,Bot2,Bot3,Bot4,Bot5,Bot6,Bot7,Bot8,Bot9]
 
 
+#where to stop
+mustStopAtEachStep = False
 
 
 
@@ -101,13 +103,12 @@ def runAuctions(bots_list):
             utilities = dict()
             for bot in bots:
                 if bot in payments and payments[bot] > 0:
-                    utilities[bot] = (values[bot]*slots[assigned_advs[bot]] - payments[bot])
+                    utilities[bot] = (values[bot]-payments[bot])*slots[assigned_advs[bot]]
                     budgets[bot] = budgets[bot] - payments[bot]
-                    auctions_revenue += payments[bot]
+                    auctions_revenue += payments[bot]*slots[assigned_advs[bot]]
                 else:
                     utilities[bot] = 0
                 auctions_utility += utilities[bot]
-
 
 
             # Create History Step
@@ -127,6 +128,10 @@ def runAuctions(bots_list):
             history.append(stepHistory)
             if mustReportStep:
                 rep.reportStep(step,max_step,stepHistory,our_expenses,our_utility)
+
+            if mustStopAtEachStep:
+                input("Press Enter to continue...")
+
             step += 1
         if mustReportAuction:
             rep.reportAuction(history)
@@ -136,7 +141,7 @@ def runAuctions(bots_list):
 def generateBotList(us, adv,num):
     bl = []
     bl.append(us)
-    for n in range(num):
+    for n in range(num-1):
         bl.append(adv)
     return bl
 
@@ -166,15 +171,16 @@ def runSingleAuctionDifferentSettings():
 
 def runSingleBotCombinationAuction():
     #Settings
-    our_bot = Bot1
-    their_bot = Bot1
+    our_bot = Bot9
+    their_bot = Bot9
     #execution
     runAuctions(generateBotList(our_bot,their_bot,num_advertisers))
 
 def runMultipleBotCombinationsAuctions():
     #execution
-    for us in all_bots_list:
-        for adversary in all_bots_list:
+    for adversary in all_bots_list:
+        for us in all_bots_list:
+            print(us,"vs",adversary)
             runAuctions(generateBotList(us,adversary,num_advertisers))
 
 
@@ -182,7 +188,8 @@ no = randint(1,1000)
 rep = Reporter()
 rep.executionNumber = no
 print("Executing ",no)
-runSingleBotCombinationAuction()
-# runMultipleBotCombinationsAuctions()
+# runSingleBotCombinationAuction()
+printAuctionSettings(no,num_advertisers+1,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)
+runMultipleBotCombinationsAuctions()
 # runAllBotsAuction()
 # runSingleAuctionDifferentSettings()
