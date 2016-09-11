@@ -61,6 +61,16 @@ def count_edges(graph):
         counted_edges += len(graph[node])
     return counted_edges
 
+def delete_node(graph, node):
+    try:
+        del graph[node]
+        for node1 in graph:
+            if node in graph[node1]:
+                graph[node1].remove(node)
+        return True
+    except KeyError:
+        return False
+
 #Works only when the nodes are integers starting from zero
 def get_transition_matrix(graph):
     transition_matrix = list()
