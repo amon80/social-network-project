@@ -4,6 +4,53 @@ from math import sqrt
 #All the functions in this module work only with an integer graph
 #usually given as a transition matrix. So be sure to normalize your graph.
 
+def pageRank(graph, s=0.85, step = 1000, confidence = 0.01, tax = None, rank = None, verbose = True):
+    n = len(graph)
+    nodes = range(n)
+    done = False
+    time = 0
+
+    if rank is None:
+        rank = []
+        for i in nodes:
+            rank.append(1/n)
+    if tax is None:
+        tax = []
+        for i in nodes:
+            tax.append(1/n)
+
+
+    while not done and time < step:
+        time += 1
+        tmp = []
+        diff = 0
+        for node in nodes:
+            tmp.append(tax[node]*(1-s))
+        for node in nodes:
+            for neighbour in graph[node]:
+                tmp[neighbour] += s * rank[node]/len(graph[node])
+
+        for i in nodes:
+            diff += abs(rank[i]-tmp[i])
+            rank[i] = tmp[i]
+
+        if verbose:
+            print(str(time) + " - diff: " + str(diff))
+        if diff <= confidence:
+            done = True
+    return time, rank
+
+def trustRank(graph, trusted_pages, s=0.85, step = 1000, confidence = 0.01, verbose = True):
+    tax_vector = list()
+    n = len(graph)
+    for i in range(n):
+        tax_vector.append(0)
+    for page in trusted_pages:
+        tax_vector[page] = 1/len(trusted_pages)
+    rank_vector = list(tax_vector)
+    time, rank = pageRank(graph, tax = tax_vector, rank = rank_vector, verbose = verbose, confidence = confidence, s = s, step = step)
+    return time,rank
+
 #for inverse pagerank give the function the inverse transition matrix
 def matricial_pageRank(transition_matrix, s=0.85, step=1000, confidence=0, tax = None, rank = None, verbose = True):
     n = len(transition_matrix)
@@ -99,29 +146,23 @@ if __name__ == "__main__":
     from graph import read_graph, get_transition_matrix, get_inverse_transition_matrix
     from sys import argv
     from numpy import matrix
-    graph = read_graph(argv[1])
+    from time import clock
+    graph = read_graph(argv[1], integer = True)
     print("Finished Read graph")
 
-    transition_matrix = matrix(get_transition_matrix(graph))
-    print("Finished Get transition_matrix")
-    prTime, prRank = matricial_pageRank(transition_matrix, step = 1000, confidence = 0.001, verbose = True)
+    step = 1000
+    confidence = 0.00001
+
+    # transition_matrix = matrix(get_transition_matrix(graph))
+    # print("Finished Get transition_matrix")
+    start = clock()
+    prTime, prRank = pageRank(graph,  step = step, confidence = confidence, verbose = True)
     print("Finished classical pageRank")
+    end = clock()
+    print("Tempo: " + str(end-start))
     write_rankings(prRank, argv[1]+'_pagerank')
-    trTime, trRank = matricial_trustRank(transition_matrix, [6465, 4517, 5366, 1409, 8630, 10465, 6885, 11827, 7693, 5443, 1386, 9451, 9622, 9045, 12632, 4266, 8881, 5946], confidence = 0.001, verbose = True)
-    write_rankings(trRank, argv[1]+'_trustrank')
     # inv_transition_matrix = matrix(get_inverse_transition_matrix(graph))
     # print("Finished Get inv_transition_matrix")
-    # inv_step, inv_scores = matricial_pageRank(inv_transition_matrix, step = 1000, confidence = 0.001, verbose = True)
+    # inv_step, inv_scores = matricial_pageRank(inv_transition_matrix, step = step, confidence = confidence, verbose = True)
     # print("Finished inverse pageRank")
     # write_rankings(inv_scores, argv[1]+'_inv_pagerank')
-    # readed_rankings = read_rankings(argv[1]+'_inv_pagerank')
-    # confidence = 0.001
-    # for i in range(len(graph)):
-    #     if inv_scores[i] - readed_rankings[i] > confidence:
-    #         print("Error " + str(i))
-    # readed_rankings = read_rankings(argv[1]+'_pagerank')
-    # confidence = 0.001
-    # for i in range(len(graph)):
-    #     if prRank[i] - readed_rankings[i] > confidence:
-    #         print("Error " + str(i))
-
