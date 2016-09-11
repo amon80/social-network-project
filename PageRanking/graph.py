@@ -67,6 +67,17 @@ def get_transition_matrix(graph):
                 transition_matrix[i][j] = 1/len(graph[j]) 
     return transition_matrix
 
+#if e=u1,v1 in graph, e=v1,u1 in reverse_graph
+def get_reverse_graph(graph):
+    reverse_graph = dict()
+    for node in graph:
+        reverse_graph[node] = set()
+    #link from node to neighbour will became from neighbour to node
+    for node in graph:
+        for neighbour in graph[node]:
+            reverse_graph[neighbour].add(node)
+    return reverse_graph
+
 def get_indegrees(graph):
     in_degrees = dict()
     for node in graph:
