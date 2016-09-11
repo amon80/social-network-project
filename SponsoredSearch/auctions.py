@@ -19,6 +19,7 @@ def balance(slot_ctrs, bids, starting_budgets, current_budgets, query):
 	sorted_slots = sorted(slot_ctrs[query].keys(), key = slot_ctrs[query].__getitem__, reverse = True)
 	sorted_advertisers = sorted(psi.keys(), key = psi.__getitem__, reverse = True)
 
+
 	for i in range(min(len(sorted_slots),len(sorted_advertisers))):
 		query_winners[sorted_slots[i]] = sorted_advertisers[i]
 		query_pay[sorted_advertisers[i]] = bids[query][sorted_advertisers[i]] #Here, we use first price auction, winner pays exactly their bid

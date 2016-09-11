@@ -101,6 +101,7 @@ class Bot1(Bot,metaclass=Bot1Meta):
 
         if evaluation==0:
             return 0
+
         #If this is the first step there is no history and no best-response is possible
         #We suppose that adevertisers simply bid their value.
         #Other possibilities would be to bid 0 or to choose a bid randomly between 0 and their value.
@@ -285,16 +286,6 @@ class Bot6(Bot,metaclass=Bot6Meta):
     """Submit random bid"""
     def response(self,name,evaluation,history,slot_ctrs,current_budget, initial_budget):
 
-        # step = len(history)
-
-        # if step == 0:
-        #     return evaluation
-
-        # last_step_bids = history[step-1][constants.BIDS_KEY]
-        # min_bid_last_step = min(last_step_bids.values())
-        # max_bid_last_step = max(last_step_bids.values())
-        # mab = ceil(min_bid_last_step*10)
-        # mib = ceil(max_bid_last_step*10)
         return randint(0,10)
 
     def __str__(self):
