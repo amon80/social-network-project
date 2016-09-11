@@ -2,7 +2,8 @@ from textparser import get_parsed_document
 from spider import crawl
 from multiprocessing import Pool
 from MyException import MyException
-from graph import write_graph, read_graph, write_index
+from graph import write_graph, read_graph
+from index import write_index, read_index
 import os
 
 def generate_graph(start_link_list, n_link_to_follow = 2000, verbose = True):
@@ -23,7 +24,7 @@ def generate_graph(start_link_list, n_link_to_follow = 2000, verbose = True):
 
     write_graph(graph, 'graph_generated_by_'+str(pid))
 
-def generate_pages_contents(nodes, graph_name, log = True):
+def generate_pages_contents(nodes, graph_name, log = False):
     string_pid = str(os.getpid())
     if log:
         logfile = open('log-' + string_pid, "w")
