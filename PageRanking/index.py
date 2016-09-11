@@ -1,6 +1,7 @@
-def read_index(databasefile, verbose = False):
-    inverted_index = dict()
+def read_index(databasefile, integer = True, also_inverted = True, verbose = False):
     index = dict()
+    if also_inverted:
+        inverted_index = dict()
 
     with open(databasefile) as infile:
         line_no = 1
@@ -8,7 +9,10 @@ def read_index(databasefile, verbose = False):
         for line in infile:
             line = line.rstrip()
             name_list = line.split(' ',1)
-            name = int(name_list[0])
+            if integer:
+                name = int(name_list[0])
+            else:
+                name = name_list[0]
             if name not in index.keys():
                 index[name] = dict()
             try:
@@ -21,19 +25,23 @@ def read_index(databasefile, verbose = False):
                             continue
                         if word not in index[name]:
                             index[name][word] = 0
-                        if word not in inverted_index.keys():
-                            inverted_index[word]=dict() 
-                        if name not in inverted_index[word].keys():
-                            inverted_index[word][name] = 0 
+                        if also_inverted:
+                            if word not in inverted_index.keys():
+                                inverted_index[word]=dict() 
+                            if name not in inverted_index[word].keys():
+                                inverted_index[word][name] = 0 
                         
+                            inverted_index[word][name] += 1
                         index[name][word] += 1
-                        inverted_index[word][name] += 1
             except IndexError:
                 if verbose:
                     print("No spaces or no query on " + str(line_no))
             finally:
                 line_no += 1
-    return (index, inverted_index)
+    if also_inverted:
+        return (index, inverted_index)
+    else:
+        return index
 
 def write_index(index, output_file):
     with open(output_file, "w") as f:
