@@ -143,7 +143,7 @@ def write_rankings(rankings, rankfile):
             f.write(str(rankings[i])+"\n")
 
 if __name__ == "__main__":
-    from graph import read_graph, get_transition_matrix, get_inverse_transition_matrix
+    from graph import read_graph, get_transition_matrix, get_inverse_transition_matrix, get_reverse_graph
     from sys import argv
     from numpy import matrix
     from time import clock
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     print("Finished Read graph")
 
     step = 1000
-    confidence = 0.00001
+    confidence = 0.00000001
 
     # transition_matrix = matrix(get_transition_matrix(graph))
     # print("Finished Get transition_matrix")
@@ -161,8 +161,7 @@ if __name__ == "__main__":
     end = clock()
     print("Tempo: " + str(end-start))
     write_rankings(prRank, argv[1]+'_pagerank')
-    # inv_transition_matrix = matrix(get_inverse_transition_matrix(graph))
-    # print("Finished Get inv_transition_matrix")
-    # inv_step, inv_scores = matricial_pageRank(inv_transition_matrix, step = step, confidence = confidence, verbose = True)
-    # print("Finished inverse pageRank")
-    # write_rankings(inv_scores, argv[1]+'_inv_pagerank')
+    reverse_graph = get_reverse_graph(graph)
+    inv_step, inv_scores = pageRank(reverse_graph, step = step, confidence = confidence, verbose = True)
+    print("Finished inverse pageRank")
+    write_rankings(inv_scores, argv[1]+'_inv_pagerank')
