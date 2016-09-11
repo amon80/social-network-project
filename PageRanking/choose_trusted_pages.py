@@ -1,5 +1,5 @@
 from ranking import read_rankings, order_nodes
-from graph import read_normalization_map
+from normalize import read_normalization_map
 from sys import argv
 
 if __name__ == "__main__":
@@ -10,6 +10,6 @@ if __name__ == "__main__":
     ordered_nodes_inv = order_nodes(nodes, inv_prRank)
     ordered_nodes = order_nodes(nodes, prRank)
     pages_on_which_use_oracle = ordered_nodes_inv[:num_pages] + ordered_nodes[:num_pages]
-    norm_map, inv_norm_map = read_normalization_map('normalized_mapping')
+    norm_map, inv_norm_map = read_normalization_map('mapping')
     for page in pages_on_which_use_oracle:
         print(inv_norm_map[page] + " - " + str(page))
