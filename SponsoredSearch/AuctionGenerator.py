@@ -17,9 +17,9 @@ import constants
 verbose = False
 
 overrideMyBudget = False
-overrideMyEvaluation = True
+overrideMyEvaluation = False
 overridedBudget = 200
-overridedEvaluation = 10
+overridedEvaluation = 3
 
 # generates bidders: evaluation for each query and budget
 def generateAdvertisers(advertisers, minValue, maxValue, minBudget, maxBudget):

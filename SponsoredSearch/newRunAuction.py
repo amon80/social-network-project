@@ -25,8 +25,8 @@ minValue = 0
 maxValue = 10
 
 #range of budgets for each advertiser
-minBudget = 100
-maxBudget = 200
+minBudget = 50
+maxBudget = 100
 
 #is VCG or FirstPriceAuction
 isVCG = True
@@ -40,7 +40,6 @@ all_bots_list = [Bot1,Bot2,Bot3,Bot4,Bot5,Bot6,Bot7,Bot8,Bot9]
 
 #where to stop
 mustStopAtEachStep = False
-
 
 
 def generateBots(bots_list):
@@ -82,13 +81,15 @@ def runAuctions(bots_list):
         done = False
 
         while not done and step < max_step:
-            done = True
+            # done =c True
             for b in bots.keys():
                 bids[b] = bots[b].response(b,values[b],history,slots,budgets[b],starting_budgets[b])
-                if step == 0 or bids[b] != history[step-1]["adv_bids"][b]:
-                    done = False
-            if done:
-                break
+                # if step == 0 or bids[b] != history[step-1][constants.BIDS_KEY][b]:
+                #     done = False
+                # if step > 1 and bids[b] != history[step-2][constants.BIDS_KEY][b]:
+                #     done = False
+            # if done:
+            #     break
 
 
             # Run Auction
@@ -102,7 +103,7 @@ def runAuctions(bots_list):
             # Update bots utilities and budgets
             utilities = dict()
             for bot in bots:
-                if bot in payments and payments[bot] > 0:
+                if bot in payments: #and payments[bot] > 0:
                     utilities[bot] = (values[bot]-payments[bot])*slots[assigned_advs[bot]]
                     budgets[bot] = budgets[bot] - payments[bot]
                     auctions_revenue += payments[bot]*slots[assigned_advs[bot]]
@@ -150,8 +151,8 @@ def runAllBotsAuction():
 
 def runSingleBotCombinationAuction():
     #Settings
-    our_bot = Bot9
-    their_bot = Bot9
+    our_bot = Bot4
+    their_bot = Bot1
     #execution
     runAuctions(generateBotList(our_bot,their_bot,num_advertisers))
 
@@ -180,11 +181,12 @@ no = randint(1,1000)
 rep = Reporter()
 rep.executionNumber = no
 print("Executing ",no)
-
 printAuctionSettings(no,num_advertisers+1,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)
-# runMultipleBotCombinationsAuctions()
-runMultipleBotCombinationsAuctions2()
-print("Executed ",no)
+
+runMultipleBotCombinationsAuctions()
+# runMultipleBotCombinationsAuctions2()
 # runAllBotsAuction()
 # runSingleBotCombinationAuction()
 # runAllSameBotAuctions()
+
+print("Executed ",no)

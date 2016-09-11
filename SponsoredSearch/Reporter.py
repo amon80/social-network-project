@@ -60,12 +60,13 @@ class Reporter(object):
 					writer.writerow(toWrite)
 			elif self.writeStepOutputUs:
 				with open('Reports/'+str(self.executionNumber)+'_stepReportUs.csv','a') as csvfile:
-					fieldnames = ["expenses","utility"]
+					fieldnames = ["expenses","utility","budget"]
 					writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
 
+					our_budget = ("%.2f"% stepHistory[constants.BUDGETS_KEY][constants.OUR_BOT_NAME]).replace(".",",")
 					if self.firstCall:
 						writer.writeheader()
-					writer.writerow({"expenses":("%.2f"% our_expenses).replace(".",","),"utility":("%.2f"% our_utility).replace(".",",")})
+					writer.writerow({"expenses":("%.2f"% our_expenses).replace(".",","),"utility":("%.2f"% our_utility).replace(".",","), "budget":our_budget})
 
 		self.firstCall = False
 
@@ -74,8 +75,25 @@ class Reporter(object):
 
 
 	def reportAuction(self,history):
-		for step in range(len(history)):
-			print(history[step][constants.UTILITIES_KEY][constants.OUR_BOT_NAME])
+		with open('Reports/'+str(self.executionNumber)+'_auctionReport.csv','a') as csvfile:
+			fieldnames = []
+			row = {}
+			for step in range(100):
+				stepName = str(step)
+				fieldnames.append(stepName)
+				if step < len(history):
+					row[stepName] = ("%.2f"% history[step][constants.BUDGETS_KEY][constants.OUR_BOT_NAME]).replace(".",",")
+				else:
+					row[stepName] =  0
+
+			writer = csv.DictWriter(csvfile,fieldnames = fieldnames)
+			if self.firstCall:
+				writer.writeheader()
+				self.firstCall = False
+			writer.writerow(row)
+
+
+
 
 	def reportAuctions(self,our_expenses,our_utility,auctions_revenue,auctions_utility):
 		if self.writeAuctionsAdvertiserOutput:
