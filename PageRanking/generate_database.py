@@ -1,9 +1,9 @@
 import random
 
 #n_elements and n_couples adapted to our graph
-def add_random_edges_to_total_graph(graph, n_elements = 878, num_couples = 4):
-    ngroups = len(graph.keys()) // n_elements
-    nodes = list(graph.keys())
+def add_random_edges_to_total_graph(graph, n_elements = 2000, num_couples = 10):
+    ngroups = len(graph) // n_elements
+    nodes = list(graph)
     for i in range(ngroups-1):
         for j in range(i+1, ngroups):
             for k in range(num_couples):
@@ -26,7 +26,7 @@ def find_most_frequent_term(index, doc, termsToAvoid = set()):
     return (most_frequent_term, most_frequent_score)
 
 #Use on non normalized graph
-def create_spam_farm(graph, index, supporting_pages = 35, random_pages_linking_spam = 10):
+def create_spam_farm(graph, index, supporting_pages = 100, random_pages_linking_spam = 30):
     nodes_without_spam = list(graph.keys())
     num_nodes_without_spam = len(nodes_without_spam)
     #Creating target page
