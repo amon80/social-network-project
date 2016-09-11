@@ -1,4 +1,5 @@
-from generate_database import generate_pages_contents, write_index
+from dataset_building import generate_pages_contents
+from index import write_index
 from graph import read_graph
 import sys
 
