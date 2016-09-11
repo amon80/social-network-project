@@ -52,7 +52,7 @@ def crawl(url, number_of_links_to_follow, graph = None, pid = os.getpid(), verbo
     #Compiling regular expression and settings sites to avoid
     #Regular expression does not allow relative urls
     linkPattern = re.compile("^(?:http|https):\/\/(?:[\w\.\-\+]+:{0,1}[\w\.\-\+]*@)?(?:[a-z0-9\-\.]+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+)|\?(?:[\w#!:\.\?\+=&%@!\-\/\(\)]+))?$")
-    sites_to_avoid = ["messenger","facebook", "twitter", "instagram", "youtube", "plus.google", "google", "t.co", "itunes.apple.com", "tumblr", "flickr", "linkedin", "tmblr", "pintereset", "foursquare", "vimeo"]
+    sites_to_avoid = ["messenger","facebook", "twitter", "instagram", "youtube", "plus.google", "google", "t.co", "itunes.apple.com", "tumblr", "flickr", "linkedin", "tmblr", "pinterest", "foursquare", "vimeo", "vk", "tumblr", "del.icio.us"]
 
     #Setting other convenience variables before starting to crawl
     examined_links = 0
