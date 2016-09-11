@@ -4,3 +4,10 @@
 .DS_Store
 *.swp
 octave-workspace
+*.swp
+*.toc
+*.log
+*.nav
+*.out
+*.snm
+*.aux
