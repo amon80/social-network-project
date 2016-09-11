@@ -19,7 +19,7 @@ def normalize_graph(graph, print_mapping = True):
             graph_normalized[source_index].add(target_index)
 
     if print_mapping:
-        with open('normalized_mapping', 'w') as f:
+        with open('mapping', 'w') as f:
             for node in index_node_mapping:
                 index = index_node_mapping[node]
                 f.write(str(index)+" "+node+"\n")
