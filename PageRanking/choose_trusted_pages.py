@@ -11,5 +11,9 @@ if __name__ == "__main__":
     ordered_nodes = order_nodes(nodes, prRank)
     pages_on_which_use_oracle = ordered_nodes_inv[:num_pages] + ordered_nodes[:num_pages]
     norm_map, inv_norm_map = read_normalization_map('mapping')
-    for page in pages_on_which_use_oracle:
+    print("Inverted Pageranks")
+    for page in ordered_nodes_inv[:num_pages]:
+        print(inv_norm_map[page] + " - " + str(page))
+    print("Pageranks")
+    for page in ordered_nodes[:num_pages]:
         print(inv_norm_map[page] + " - " + str(page))
