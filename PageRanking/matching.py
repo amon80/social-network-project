@@ -20,21 +20,29 @@ def best_match(query, inverted_index, index):
 
     #For every word we look at each document in the list and we increment the document's weight
     for word in query_words:
-        for doc in inverted_index[word].keys():
+        try:
+            documents_responding_to_word = inverted_index[word]
+        except KeyError:
+            continue
+        for doc in documents_responding_to_word:
             #Computing word frequence in doc
             frequency = compute_frequency(index, doc, word)
             if doc not in scores:
                 scores[doc] = (doc, frequency)
             else:
                 scores[doc] = (doc, scores[doc][1] + frequency)
+    if len(scores) == 0:
+        return []
+
 
     scores_as_list = list(scores.values())
     best_docs = sorted(scores_as_list, key = lambda x:x[1], reverse=True)
     if len(best_docs) > 20:
-        return best_docs[0:19]
+        return best_docs[:19]
     else:
         return best_docs
 
+#sorted_inverted_index is a dict. Key: words. Value: list of couples. Couples: First term:document. Second term:Frequency
 #Sorts inverted index from the document with highest frequency to lowest
 def sort_inverted_index(inverted_index, index):
     sorted_inverted_index = dict()
@@ -44,7 +52,6 @@ def sort_inverted_index(inverted_index, index):
             frequencies.append((doc, compute_frequency(index, doc, query_term)))
         sorted_inverted_index[query_term] = sorted(frequencies, key= lambda x:x[1], reverse=True)
     return sorted_inverted_index
-
 
 # The Score of a document depend on the frequency of a query term in that document,
 # where the frequency is the ratio between the number of occurences of the term and
@@ -68,7 +75,12 @@ def best_match2(query, sorted_inverted_index, index):
 
     ##2  For every query term define its possible impact on the score as the frequency of the most frequent document in its index
     for word in query_words:
-        impacts[word] = sorted_inverted_index[word][0][1]
+        try:
+            impacts[word] = sorted_inverted_index[word][0][1]
+        except KeyError:
+            continue
+    if len(impacts) == 0:
+        return []
 
     ##3  Sort the query terms in decreasing order of impact
     query_term_ordered_by_impact = sorted(impacts, key=impacts.get, reverse=True)
@@ -126,6 +138,6 @@ def best_match2(query, sorted_inverted_index, index):
     
     #9  Return the 20 documents with higher score
     if len(sorted_scores) > 20:
-        return sorted_scores[0:19]
+        return sorted_scores[:19]
     else:
         return sorted_scores

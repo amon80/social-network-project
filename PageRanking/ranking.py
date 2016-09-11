@@ -46,16 +46,16 @@ def matricial_trustRank(transition_matrix, trusted_pages, s=0.85, step = 1000, c
         tax_vector.append(0)
     for page in trusted_pages:
         tax_vector[page] = 1
-    rank_vector = list(tax_vector)
     tax_vector = multiply((1/len(trusted_pages)),tax_vector)
+    rank_vector = list(tax_vector)
     time, rank = matricial_pageRank(transition_matrix, tax = tax_vector, rank = rank_vector, verbose = verbose, confidence = confidence, s = s, step = step)
     return time,rank
 
-def order_nodes(nodes, scores):
+def order_nodes(nodes, scores, from_bigger = True):
     tmp = dict()
     for i in nodes:
         tmp[i] = scores[i]
-    return sorted(tmp, key=tmp.__getitem__, reverse = True)
+    return list(sorted(tmp, key=tmp.__getitem__, reverse = from_bigger))
 
 # A negative or small positive spam mass means that p is probably not a spam page,
 # while a spam mass close to 1 suggests that the page probably is spam.
