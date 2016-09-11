@@ -96,10 +96,10 @@ def write_rankings(rankings, rankfile):
             f.write(str(rankings[i])+"\n")
 
 if __name__ == "__main__":
-    from graph import read_integer_graph, get_transition_matrix, get_inverse_transition_matrix
+    from graph import read_graph, get_transition_matrix, get_inverse_transition_matrix
     from sys import argv
     from numpy import matrix
-    graph = read_integer_graph(argv[1])
+    graph = read_graph(argv[1])
     print("Finished Read graph")
 
     transition_matrix = matrix(get_transition_matrix(graph))

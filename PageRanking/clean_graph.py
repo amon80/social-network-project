@@ -5,7 +5,7 @@ import sys
 #Use just this function
 #Maybe must be called more than once
 def clean_graph_and_index(graph_input_file, index_input_file):
-    graph = read_graph(graph_input_file)
+    graph = read_graph(graph_input_file, integer = False)
     index = read_index(index_input_file, integer = False, also_inverted = False)
     page_to_remove = []
     

@@ -5,7 +5,7 @@ import sys
 
 if __name__ == "__main__":
     input_file = sys.argv[1]
-    graph = read_graph(input_file)
+    graph = read_graph(input_file, integer = False)
     nodes = list(graph.keys())
     index = generate_pages_contents(nodes, sys.argv[1])
     write_index(index, sys.argv[1]+'_index')

@@ -12,15 +12,19 @@ def write_graph_as_csv(graph, output_file):
             for edge in graph[node]:
                 f.write(str(node) + "," + str(edge) + "\n")
 
-def read_graph(input_file, verbose = True):
+def read_graph(input_file, integer = True, verbose = True):
     graph = dict()
     with open(input_file) as f:
         line_no = 1
         for line in f:
             try:
                 nodes = line.split()
-                node1 = nodes[0]
-                node2 = nodes[1]
+                if integer:
+                    node1 = int(nodes[0])
+                    node2 = int(nodes[1])
+                else:
+                    node1 = nodes[0]
+                    node2 = nodes[1]
                 if node1 not in graph:
                     graph[node1] = set()
                 if node2 not in graph:
@@ -33,28 +37,6 @@ def read_graph(input_file, verbose = True):
                 line_no += 1
     return graph
 
-def read_integer_graph(input_file, verbose = True):
-    graph = dict()
-    with open(input_file) as f:
-        line_no = 1
-        for line in f:
-            try:
-                nodes = line.split()
-                node1 = int(nodes[0])
-                node2 = int(nodes[1])
-                if node1 not in graph:
-                    graph[node1] = set()
-                if node2 not in graph:
-                    graph[node2] = set()
-                graph[node1].add(node2)
-            except IndexError as e:
-                if verbose:
-                    print("Empty line found on line " + str(line_no) + "\n")
-            finally:
-                line_no += 1
-    return graph
-
-    
 def count_edges(graph):
     counted_edges = 0
     for node in graph.keys():
