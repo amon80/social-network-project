@@ -383,7 +383,7 @@ Here is the complete list of the websites chosen.
 
 \begin{frame}
 \frametitle{Adding the spam farm}
-To test the utility of TrustRank and Spammass, we added to our dataset a spam farm in the following way:
+To test the utility of SpamMass, we added to our dataset a spam farm in the following way:
 \vfill
 \begin{enumerate}
 \item We created a target page and 100 supporting pages.
@@ -392,32 +392,65 @@ To test the utility of TrustRank and Spammass, we added to our dataset a spam fa
 \end{enumerate}
 \end{frame}
 
-\subsection{PageRanks and TrustRank results}
+\subsection{PageRanks and SpamMass results}
 
 \begin{frame}
-\frametitle{PageRank distribution}
+\frametitle{PageRank distribution(Plot)}
+     \includegraphics[width=\textwidth,keepaspectratio]{Pictures/Pagerank.pdf}
 \end{frame}
 
 \begin{frame}
 \frametitle{PageRank performance}
+PageRank performed quite well on our dataset.
+\begin{itemize}
+\item Even with small confidence values, its convergence took never more than 100 steps.
+\item Sorting the scores in descending way we found most of the sites from which we started the crawling, or pages related to them, to have top scores.
+\item Unfortunately, the top score was achieved by the 'target' page of the spam farm.
+\end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{TrustRank distribution}
+\frametitle{SpamMass}
+Our analysis was slightly different for what's concering SpamMass. 
+\begin{itemize}
+\item SpamMass scores depend on TrustRanks, which depend on the trusted pages given to the algorithm.
+\item We noticed that when the trusted pages were few a lot of pages got TrustRank 0, so were considered spam by SpamMass.
+\item So we increased the size of the trusted pages vector each time of 10 pages and calculated SpamMass with the different TrustRanks.
+\item Each time we took five pages from the set of pages with highest PageRanks and five from the set of pages with highest \emph{inverted} PageRanks.
+\end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{TrustRank performance}
+\frametitle{SpamMass performance}
+We proceded raising the oracled pages as indicated above by but the trend remained...
+\begin{itemize}
+\item With 80 pages oracled and given to TrustRank, with a SpamMass threshold of 0.95, still \alert{$35\%$} of the pages are considered spam!!!
+\item Boosting the number of trusted pages to 2000 and with a threshold of $0.99$ only the $7\%$ of nodes were considered spam.
+\end{itemize}
+\vfill
+The target page of the spam was always marked as spam.
+\end{frame}
+
+\begin{frame}
+\frametitle{SpamMass - Conclusions}
+SpamMass is useful for identify probable spam pages, but it must be used cautiosly since it relies on TrustRank.
+\begin{itemize}
+\item If there are too few trusted pages, a lot of pages could be exchaged for spam, even the good ones.
+\item On the other hand, if there are too many trusted pages, TrustRanks tend to PageRanks, thus not identifing correctly spam pages.
+\item Moreover, if a lot of pages must be judged by the oracle function, we need an automatic oracle, since an human would only be time consuming.
+\end{itemize}
 \end{frame}
 
 \subsection{Matching algorithms results}
 \begin{frame}
 \frametitle{Experiment configuration}
-For obtaining the time comparison between BestMatch and ImprovedBestMatch we run both algorithms on 25 random queries of different length :\\
+For the comparison between the two matching algorithms we set up the following configuration:
 \begin{itemize}
-\item 5 for each length from 3 to 7
-\end{itemize} 
-Then we mean the results and plotted them on a graph
+\item For each query length $l$.
+\item Generate a random query of length $l$ and use both the algorithms to match the query, keeping track of results and execution time.
+\end{itemize}
+
+The two algorithms returned \alert{always} the same results so we focused on the execution time.
 \end{frame}
 
 \begin{frame}
@@ -425,25 +458,6 @@ Then we mean the results and plotted them on a graph
 	\begin{center}
 	%\includegraphics[scale=0.32]{img/Matching/Tempi.PNG} 
 	\end{center}
-\end{frame}
-
-\begin{frame}
-\frametitle{Time comparison BestMatch vs ImprovedBestMatch}
-First of all  Improved Best Match ``\alert{wins}'' on all query lengths, moreover it seems to be constant. This is due to the fact that there is a huge difference on the times of the algorithm at least of 1 order of magnitude.\\
-\medskip
-We can notice that times of query of length 5 in best match are smaller of the one on length 4; this can be attributable to the random generation of queries, in fact, if we take 5 very uncommon words there are \alert{few} documents that have one of these word so the algorithm ends quickly. 
-\end{frame}
-
-\begin{frame}
-\frametitle{Improved Best Match time}
-\begin{center}
-%\includegraphics[scale=0.32]{img/Matching/Tempi_IMP.PNG} 
-\end{center}
-\end{frame}
-
-\subsection{Search engine results}
-\begin{frame}
-\frametitle{Search engine accuracy}
 \end{frame}
 
 \section{Conclusions}
