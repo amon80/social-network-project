@@ -16,9 +16,9 @@ import constants
 
 verbose = False
 
-overrideMyBudget = False
+overrideMyBudget = True
 overrideMyEvaluation = False
-overridedBudget = 200
+overridedBudget = 20
 overridedEvaluation = 3
 
 # generates bidders: evaluation for each query and budget
