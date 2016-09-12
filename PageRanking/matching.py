@@ -23,7 +23,6 @@ def best_match(query, inverted_index, index):
     #For every word we look at each document in the list and we increment the document's weight
 
     for word in query_words:
-        start_time = time.time()
         try:
             documents_responding_to_word = inverted_index[word]
         except KeyError:
@@ -35,8 +34,6 @@ def best_match(query, inverted_index, index):
                 scores[doc] = (doc, frequency)
             else:
                 scores[doc] = (doc, scores[doc][1] + frequency)
-        elapsed_time = time.time() - start_time
-        print("Executed word",word,"of",query_words,"in",elapsed_time)
     if len(scores) == 0:
         return []
 
