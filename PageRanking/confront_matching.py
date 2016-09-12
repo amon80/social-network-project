@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     sorted_inverted_index = sort_inverted_index(inv_index, index)
     print("Finished to sort the inverted index")
-    
+
     for j in len_range:
         with open('best_match_'+str(j)+'_terms_times', 'w') as best_match_times:
             with open('best_match_'+str(j)+'_terms_results', 'w') as best_match_results:

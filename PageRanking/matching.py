@@ -18,7 +18,10 @@ def best_match(query, inverted_index, index):
     scores = dict()
     query_words = query.split()
 
+
+
     #For every word we look at each document in the list and we increment the document's weight
+
     for word in query_words:
         try:
             documents_responding_to_word = inverted_index[word]
@@ -65,7 +68,7 @@ def compute_score(query_term, doc_frequencies):
 
 
 #sorted_inverted_index is a dict. Key: words. Value: list of couples. Couples: First term:document. Second term:Frequency
-def best_match2(query, sorted_inverted_index, index):    
+def best_match2(query, sorted_inverted_index, index):
 
     impacts = dict()            # key: doc_name     | value: impact
     scores  = dict()            # key: doc_name     | value: score (#occurence of query term / # words)
@@ -88,7 +91,7 @@ def best_match2(query, sorted_inverted_index, index):
     ##4 consider the first 20 documents in the index of the first query term
     current_query_term_index = 0
     # iterate until 20 scores have been computed or query terms are over
-    while len(scores) < 20 and current_query_term_index < len(query_term_ordered_by_impact): 
+    while len(scores) < 20 and current_query_term_index < len(query_term_ordered_by_impact):
         current_query_term = query_term_ordered_by_impact[current_query_term_index]
         current_doc_index = 0
 
@@ -101,9 +104,9 @@ def best_match2(query, sorted_inverted_index, index):
             current_doc_index += 1
         current_query_term_index += 1
 
-    
+
     ##6  Consider the first term in which there are documents that have not been scored
-    
+
     term_index = 0
     while term_index < len(query_term_ordered_by_impact):
         termDone = False
@@ -135,7 +138,7 @@ def best_match2(query, sorted_inverted_index, index):
     # sorted_scores = sorted(scores,key=),reverse=True)
     sorted_scores = sorted(scores.items(), key = lambda x:x[1], reverse=True)
 
-    
+
     #9  Return the 20 documents with higher score
     if len(sorted_scores) > 20:
         return sorted_scores[:19]
