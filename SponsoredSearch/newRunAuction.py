@@ -183,10 +183,10 @@ rep.executionNumber = no
 print("Executing ",no)
 printAuctionSettings(no,num_advertisers+1,minSlots,maxSlots,minValue,maxValue,minBudget,maxBudget,nAuctions,max_step,isVCG)
 
-runMultipleBotCombinationsAuctions()
+# runMultipleBotCombinationsAuctions()
 # runMultipleBotCombinationsAuctions2()
 # runAllBotsAuction()
 # runSingleBotCombinationAuction()
-# runAllSameBotAuctions()
+runAllSameBotAuctions()
 
 print("Executed ",no)
