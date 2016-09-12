@@ -29,7 +29,7 @@ minBudget = 50
 maxBudget = 100
 
 #is VCG or FirstPriceAuction
-isVCG = True
+isVCG = False
 
 mustReportStep = False
 mustReportAuction = False
